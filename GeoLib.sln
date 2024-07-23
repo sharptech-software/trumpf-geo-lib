@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoLib", "GeoLib\GeoLib.csproj", "{497A09A3-D3C1-4F51-BE96-1678BA805C08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoLibTest", "GeoLibTest\GeoLibTest.csproj", "{723326B2-C784-4A1A-81ED-EBDBDCB606C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoLibTest", "GeoLibTest\GeoLibTest.csproj", "{723326B2-C784-4A1A-81ED-EBDBDCB606C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

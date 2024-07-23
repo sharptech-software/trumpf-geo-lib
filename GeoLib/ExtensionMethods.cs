@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fasteroid.GEOLib {
+namespace Fasteroid {
     internal static class ExtensionMethods {
         public static V GetOrAdd<K, V>(this Dictionary<K, V> dict, K key) where K : notnull where V : new() {
             if (!dict.ContainsKey(key)) {
@@ -12,6 +12,5 @@ namespace Fasteroid.GEOLib {
             }
             return dict[key];
         }
-
     }
 }

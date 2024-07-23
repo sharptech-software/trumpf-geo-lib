@@ -1,12 +1,8 @@
-﻿using Fasteroid.GEOLib;
+﻿using Fasteroid;
+using System.Diagnostics;
 
-var test = await GEOLoader.Load( @"your geo here" );
+var test = await GEOLib.Drawing.FromFile( @"./Example01.GEO" );
+
+Debug.WriteLine(test);
 
 Console.WriteLine("loaded the geo");
-
-foreach (var block in test) {
-    Console.WriteLine( block.Key );
-    foreach (var entity in block.Value) {
-        Console.WriteLine( string.Join( " ", entity ) );
-    }
-}

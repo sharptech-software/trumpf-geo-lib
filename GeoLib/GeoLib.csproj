@@ -5,7 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>Fasteroid.GEOLib</AssemblyName>
-    <RootNamespace>Fasteroid.GEOLib</RootNamespace>
+    <RootNamespace>Fasteroid</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fasteroid.ParallelUtils" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Example01.GEO">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
