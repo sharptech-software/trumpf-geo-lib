@@ -1,0 +1,2 @@
+
+/#~(\d+)(.*?)#?#~/gms   :   Match a geo "block", with a number and some data.
