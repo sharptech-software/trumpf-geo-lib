@@ -20,6 +20,9 @@
     <None Update="Example01.GEO">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="GeoTests.GEO">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

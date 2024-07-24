@@ -1,0 +1,16 @@
+Below is an index of tests for the file "GeoTests.geo"
+The numbers listed are the floored x coordinate for all elements in the test (each test spans 1 unit in the x direction)
+
+1 = color
+2 = stroke type
+3 = text height
+4 = text aspect ratio
+5 = inclination
+6 = rotation
+7 = write direction
+8 = reference point
+9  = circular text direction
+10 = circular text radius
+11 = marked text
+
+18 = polyline

@@ -21,16 +21,14 @@ namespace Fasteroid {
                 public const string CIRCLE = "CIR";
             }
 
-            // there are probably 8 colors, for all states representable with 3 bits, judging by what colors actually show up when you view a GEO:
             public static class COLORS { 
-                public const int BLACK   = 1;
-                // red?
+                public const int DEFAULT = 1;
+                public const int RED     = 2;
                 public const int YELLOW  = 3;
                 public const int GREEN   = 4;
-                // cyan?
-                // blue?
-                // magenta?
-                // white?
+                public const int CYAN    = 5;
+                public const int BLUE    = 6;
+                public const int MAGENTA = 7;
             }
 
             // this is really uncertain at the moment:
