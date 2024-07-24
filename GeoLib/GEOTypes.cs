@@ -7,18 +7,17 @@ using System.Threading.Tasks;
 namespace Fasteroid {
     public partial class GEOLib {
         public static class TYPES {
-            public enum SECTION {
-                HEADER   = 1,
-                POINTS   = 31,
-                TEXT     = 32,
-                ENTITIES = 331,
+            public static class SECTION {
+                public const int HEADER   = 1;
+                public const int POINTS   = 31;
+                public const int TEXT     = 32;
+                public const int ENTITIES = 331;
             }
             public static class ENTITY {
-                public static readonly string POINT  = "P";
-                public static readonly string LINE   = "LIN";
-                public static readonly string TEXT   = "TXT";
-                public static readonly string ARC    = "ARC";
-                public static readonly string CIRCLE = "CIR";
+                public const string LINE   = "LIN";
+                public const string TEXT   = "TXT";
+                public const string ARC    = "ARC";
+                public const string CIRCLE = "CIR";
             }
         }
     }

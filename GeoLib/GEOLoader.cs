@@ -7,11 +7,11 @@ namespace Fasteroid {
         private static partial Regex SectionPattern();
 
         [GeneratedRegex(@"(?>\n)?(.*?)(?>\n)\|~", RegexOptions.Singleline | RegexOptions.Multiline)]
-        private static partial Regex EntityPattern();
+        private static partial Regex BlockPattern();
 
         internal static async Task< Dictionary<int, List<string>> > Load(string path) {
 
-            // block type -> list of blocks of that type -> each is a list of lines
+            // block type -> section of blocks -> each block in the section is a string
             var geo = new Dictionary<int, List<string>>();
             
             string data = ( await File.ReadAllTextAsync(path) ).Replace("\r\n", "\n");
@@ -21,15 +21,15 @@ namespace Fasteroid {
             foreach (Match sectionMatch in sectionMatches) {
                 var section = geo.GetOrAdd( int.Parse( sectionMatch.Groups[1].Value ) );
                 
-                var entityMatches = EntityPattern().Matches(sectionMatch.Groups[2].Value);
+                var blockMatches = BlockPattern().Matches(sectionMatch.Groups[2].Value);
 
-                if (entityMatches.Count == 0) {
-                    section.Add( sectionMatch.Groups[2].Value );
+                if (blockMatches.Count == 0) {
+                    section.Add( sectionMatch.Groups[2].Value.Replace('\n',' ') );
                     continue;
                 }
 
-                foreach (Match entityMatch in entityMatches) {
-                    section.Add( entityMatch.Groups[1].Value );
+                foreach (Match blockMatch in blockMatches) {
+                    section.Add( blockMatch.Groups[1].Value.Replace('\n',' ') );
                 }
             }
 
