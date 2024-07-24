@@ -24,12 +24,12 @@ namespace Fasteroid {
                 var blockMatches = BlockPattern().Matches(sectionMatch.Groups[2].Value);
 
                 if (blockMatches.Count == 0) {
-                    section.Add( sectionMatch.Groups[2].Value.Replace('\n',' ') );
+                    section.Add( sectionMatch.Groups[2].Value );
                     continue;
                 }
 
                 foreach (Match blockMatch in blockMatches) {
-                    section.Add( blockMatch.Groups[1].Value.Replace('\n',' ') );
+                    section.Add( blockMatch.Groups[1].Value );
                 }
             }
 

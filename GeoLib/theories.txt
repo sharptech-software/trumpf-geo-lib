@@ -1,0 +1,57 @@
+
+#~32
+TXT
+3 1
+23
+0.500000000 1.000000000 0.000000000
+0.000000000 0.000000000
+9 1 1
+Example Text
+1
+1
+|~
+TXT
+3 1                                 // object color!, stroke type! (applies to all objects?) (need to find out more about these)
+41                                  // origin point!
+0.500000000 1.000000000 0.000000000 // ???
+0.000000000 45.000000000            // ???, angle of text!
+9 1 1
+Angled Text 45
+1
+1
+|~
+TXT
+3 1
+33
+0.500000000 1.000000000 0.000000000
+0.000000000 0.000000000
+18 1 2                              // line height?, ???, number of lines?
+Multiline
+Text
+1
+1
+|~
+##~~
+
+
+
+
+
+#~331
+LIN
+4 1
+10 9
+1
+2
+|~
+##~~
+#~KONT_END
+##~~
+#~331
+LIN
+4 0
+17 16
+1
+2
+|~
+##~~
