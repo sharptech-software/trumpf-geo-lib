@@ -31,10 +31,11 @@ namespace Fasteroid {
                 public const int MAGENTA = 7;
             }
 
-            // this is really uncertain at the moment:
             public static class STROKES {
-                public const int DASHED = 0; // todo: verify
-                public const int SOLID  = 1; // todo: verify
+                public const int SOLID    = 0;
+                public const int DASH     = 1;
+                public const int DOT      = 2;
+                public const int DASHDOT  = 3;
             }
         }
     }
