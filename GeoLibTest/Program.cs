@@ -1,7 +1,7 @@
 ﻿using Fasteroid;
 using System.Diagnostics;
 
-var test = await GEOLib.Drawing.FromFile( @"./GeoTests.GEO" );
+var test = await GEOLib.Drawing.FromFile( @"./Sleuthing/GeoTests.GEO" );
 
 var experiment = test.Entities
     .Where(e => e is GEOLib.Line)

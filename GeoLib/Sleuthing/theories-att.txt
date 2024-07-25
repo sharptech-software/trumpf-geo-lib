@@ -1,0 +1,47 @@
+#~36
+ATT
+1    # id
+18   # type?
+MARK
+PROCESS_TYPE
+0
+|~
+ATT
+2
+18
+NONE
+PROCESS_TYPE
+0
+|~
+ATT
+3                                    # id
+10                                   # type (10 is circular text)
+10.532737107 0.590521986 0.000000000 # pos
+0
+1                                    # horizontal alignment (0 = left, 1 = center, 2 = right )
+1                                    # vertical alignment   (0 = top,  1 = center, 2 = bottom)
+0.100000000                          # text height
+1.000000000                          # width / height ratio
+0.000000000                          # line spacing
+0.000000000                         
+1.000000000                         
+0.000000000                          # rotation angle
+0.000000000                          # inclination angle
+C:\TRUMPF.NET\Data\iso.fnt           # take a wild guess
+82 97 100 105 117 115 32 67 108 111 99 107 119 105 115 101 X # text as decimal ascii codes, concluded with 'X'
+
+0
+1.000000000                          # radius / direction
+|~
+
+
+# ------------------------------------------------------------
+
+# ATT type 10 seems to be the "circular text" attribute data.
+
+# Circular text seems to be stored as actual geometry (wtf?) and is tagged with an ATT type 10 to retain the text information.
+# When the user wants to edit the circular text, the associated geometry for that circular text is deleted and recreated.
+
+# This means we might not need to parse the circular text data, as it is stored as actual geometry and will be picked up by the geometry parser.
+
+# Irritatingly, this means real text is actually far more annoying to recreate in SVG accurately than circular text.

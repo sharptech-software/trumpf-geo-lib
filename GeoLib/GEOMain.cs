@@ -46,10 +46,10 @@ namespace Fasteroid {
             public abstract Type Type { get; }
 
             private readonly int _color;
-            public int Color => _color;
+            public virtual int Color => _color;
 
             private readonly int _stroke;
-            public int Stroke => _stroke;
+            public virtual int Stroke => _stroke;
 
             public Entity( string block ) {
                 var match = Pattern().MatchOrElse(block, $"Malformed base entity: {block}");
@@ -149,6 +149,8 @@ namespace Fasteroid {
             internal static partial Regex Pattern();
 
             public override Type Type => typeof(Text);
+
+            public override int Stroke => 0;
 
             public readonly Point  Origin;
             public readonly string Content;
