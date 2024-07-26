@@ -6,13 +6,27 @@ using System.Threading.Tasks;
 
 namespace Fasteroid {
     public partial class GEOLib {
+
+        /// <summary>
+        /// RE - Regular Expressions
+        /// </summary>
+        public static class RE {
+            public const string DEC = @"-?\d+(?>\.\d+)?";
+            public const string INT = @"-?\d+";
+        }
+
         public static class TYPES {
 
             public static class SECTION {
                 public const int HEADER   = 1;
                 public const int POINTS   = 31;
                 public const int TEXT     = 32;
+                public const int ATT      = 36;
                 public const int ENTITIES = 331;
+            }
+
+            public static class ATT {
+                public const int TEXT_SLAVE = 10;
             }
 
             public static class ENTITY {

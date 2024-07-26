@@ -4,16 +4,12 @@ using static Fasteroid.GEOLib;
 namespace Fasteroid {
     public partial class GEOLib {
 
-        public interface IEntity {
-            public Type Type   { get; }
-
-            public int Color   { get; }
-            public int Stroke  { get; }
-        }
 
         public partial class Point {
 
-            [GeneratedRegex(@"(\d+)\n(\d+\.\d+) (\d+\.\d+) \d+\.\d+", RegexOptions.Singleline | RegexOptions.Multiline)]
+            public readonly static Point ZERO = new Point(0,0);
+
+            [GeneratedRegex($@"({RE.INT})\n({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public readonly float X;
@@ -22,6 +18,26 @@ namespace Fasteroid {
             public Point(float x, float y) {
                 X = x;
                 Y = y;
+            }
+
+            public static Point operator +(Point a, Point b) {
+                return new Point(a.X + b.X, a.Y + b.Y);
+            }
+
+            public static Point operator -(Point a, Point b) {
+                return new Point(a.X - b.X, a.Y - b.Y);
+            }
+
+            public double Dot(Point other) {
+                return X * other.X + Y * other.Y;
+            }
+
+            public double Distance(Point other) {
+                return Math.Sqrt( Math.Pow(other.X - X, 2) + Math.Pow(other.Y - Y, 2) );
+            }
+
+            public double Length() {
+                return ZERO.Distance(this); // lol
             }
 
             public static (int, Point) FromBlock( string block ) {
@@ -39,33 +55,56 @@ namespace Fasteroid {
 
         }
 
-        public abstract partial class Entity : IEntity {
-            [GeneratedRegex(@"^(\d+) (\d+)$", RegexOptions.Multiline)]
-            private static partial Regex Pattern();
 
+        public abstract class Att {
             public abstract Type Type { get; }
-
-            private readonly int _color;
-            public virtual int Color => _color;
-
-            private readonly int _stroke;
-            public virtual int Stroke => _stroke;
-
-            public Entity( string block ) {
-                var match = Pattern().MatchOrElse(block, $"Malformed base entity: {block}");
-                _color  = int.Parse(match.Groups[1].Value);
-                _stroke = int.Parse(match.Groups[2].Value);
-            }
-
-            public Entity( int color, int stroke ) {
-                _color  = color;
-                _stroke = stroke;
-            }
         }
 
-        public partial class Line : Entity {
 
-            [GeneratedRegex(@"\d+ \d+\n(\d+) (\d+)$", RegexOptions.Singleline | RegexOptions.Multiline)]
+        public interface SVGPath {
+            string StartCommand  { get; }
+            string NextCommands  { get; }
+            double Length        { get; }
+        }
+
+
+        public abstract partial class Entity {
+
+            [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline)]
+            protected static partial Regex AppearancePattern();
+
+            [GeneratedRegex($@"({RE.INT})\n({RE.INT})$", RegexOptions.Singleline)]
+            protected static partial Regex AttPattern();
+
+            public abstract Type Type   { get; }
+
+            public virtual int   Color      { get; }
+            public virtual int   Stroke     { get; }
+
+            protected virtual bool SetupAttForMe => true;
+            public virtual int? AttID { get; }
+
+            public Entity( string block ): this(block, out string _) { }
+
+            public Entity( string block, out string the_rest ) {
+                the_rest = block.TakeLines(1, out string _) // skip the type line
+                                .TakeLines(1, out string appearance);
+
+                var appearanceMatch = AppearancePattern().MatchOrElse(appearance, $"Malformed entity: {appearance}");
+                Color  = int.Parse(appearanceMatch.Groups[1].Value);
+                Stroke = int.Parse(appearanceMatch.Groups[2].Value);
+
+                if(SetupAttForMe) {
+                    var attMatch = AttPattern().Match(the_rest);
+                    AttID = attMatch.Success ? int.Parse(attMatch.Groups[1].Value) : null;
+                }
+            }
+
+        }
+
+        public partial class Line : Entity, SVGPath {
+
+            [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public override Type Type => typeof(Line);
@@ -73,23 +112,22 @@ namespace Fasteroid {
             public readonly Point Start;
             public readonly Point End;
 
-
-            internal Line( string block, Drawing parent ) : base( block ) { 
-                var match = Pattern().MatchOrElse(block, $"Malformed line: {block}");
+            internal Line( string baseblock, Drawing parent ) : base( baseblock, out string continued ) { 
+                var match = Pattern().MatchOrElse(continued, $"Malformed line: {continued}");
                 Start   = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 End     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
             }
 
-            public Line( int color, int stroke, Point start, Point end ) : base(color, stroke) {
-                Start   = start;
-                End     = end;
-            }
 
+            // svg interface
+            public string StartCommand => $"M {Start.X} {Start.Y}";
+            public string NextCommands => $"L {End.X} {End.Y}";
+            public double Length => End.Distance(Start);
         }
 
-        public partial class Circle : Entity {
+        public partial class Circle : Entity, SVGPath {
 
-            [GeneratedRegex(@"^\d+ \d+\n(\d+)\n(\d+\.\d+)$", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex($@"^({RE.INT})\n({RE.DEC})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public override Type Type => typeof(Circle);
@@ -97,22 +135,24 @@ namespace Fasteroid {
             public readonly Point Center;
             public readonly float Radius;
 
-            internal Circle( string block, Drawing parent ) : base(block) {
-                var match = Pattern().MatchOrElse(block, $"Malformed circle: {block}");
+            internal Circle( string baseblock, Drawing parent ) : base(baseblock, out string continued) {
+                var match = Pattern().MatchOrElse(continued, $"Malformed circle: {continued}");
                 Center = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Radius = float.Parse(match.Groups[2].Value);
+
+
             }
 
-            public Circle( int color, int stroke, Point center, float radius ) : base(color, stroke) {
-                Center = center;
-                Radius = radius;
-            }
+            // svg interface
+            public string StartCommand => $"M {Center.X} {Center.Y - Radius}";
+            public string NextCommands => $"a {Radius} {Radius} 180 1 0 0 {2 * Radius}\na {Radius} {Radius} 180 1 0 0 {-2 * Radius}";
+            public double Length => 2 * Math.PI * Radius;
 
         }
 
-        public partial class Arc : Entity {
+        public partial class Arc : Entity, SVGPath {
 
-            [GeneratedRegex(@"\d+ \d+\n(\d+) (\d+) (\d+)(\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex($@"({RE.INT}) ({RE.INT}) ({RE.INT})(\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public override Type Type => typeof(Arc);
@@ -122,64 +162,58 @@ namespace Fasteroid {
             public readonly Point End;
             public readonly bool  Clockwise;
 
-            internal Arc( string block, Drawing parent ) : base(block) {
-                var match = Pattern().MatchOrElse(block, $"Malformed arc: {block}");
+            public readonly double Radius;
+            public double   Length { get; }
+
+            private double _ArcLength() {
+                Point v1 = Start - Center;
+                Point v2 = End - Center;
+
+                double dot = v1.Dot(v2);
+                double ang = Math.Acos(dot / (v1.Length() * v2.Length()));
+
+                return ang * Radius;
+            }
+
+            internal Arc( string baseblock, Drawing parent ) : base(baseblock, out string continued) {
+                var match = Pattern().MatchOrElse(continued, $"Malformed arc: {continued}");
                 Start     = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Center    = parent.LookupPoint(int.Parse(match.Groups[2].Value));
                 End       = parent.LookupPoint(int.Parse(match.Groups[3].Value));
                 Clockwise = match.Groups[4].Success;
+
+                Radius    = Center.Distance(End);
+                Length    = _ArcLength();
             }
 
-            public Arc( int color, int stroke, Point center, Point start, Point end, bool clockwise ) : base(color, stroke) {
-                Start     = start;
-                Center    = center;
-                End       = end;
-                Clockwise = clockwise;
+
+            // svg interface
+            public string StartCommand => $"M {Start.X} {Start.Y}";
+
+            private string _NextCommands() {
+                return $"A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
             }
+            public string NextCommands => _NextCommands();
 
-        }
-
-        public partial class Text : Entity {
-
-            // The regex below could be used for multi-line text, but in practice it looks like nobody ever does that:
-            // \d+ \d+\n(\d+)\n\d+\.\d+ \d+\.\d+ \d+\.\d+\n\d+\.\d+ \d+\.\d+\n\d+ \d+ \d+\n(?>(?>(.*)\n\d+\n\d+)|([^\n]*))
-            // Perhaps someday this will be useful.  Looks like it only shows up if the file version (line 3) == 1
-
-            [GeneratedRegex(@"\d+ \d+\n(\d+)\n\d+\.\d+ \d+\.\d+ \d+\.\d+\n\d+\.\d+ \d+\.\d+\n\d+ \d+ \d+\n([^\n]*)", RegexOptions.Singleline | RegexOptions.Multiline)]
-            internal static partial Regex Pattern();
-
-            public override Type Type => typeof(Text);
-
-            public override int Stroke => 0;
-
-            public readonly Point  Origin;
-            public readonly string Content;
-
-            internal Text( string block, Drawing parent ) : base(block) {
-                var match = Pattern().MatchOrElse(block, $"Malformed text: {block}");
-                Origin  = parent.LookupPoint(int.Parse(match.Groups[1].Value));
-                Content = match.Groups[2].Value;
-            }
-
-            public Text( int color, int stroke, Point origin, string content ) : base(color, stroke) {
-                Origin  = origin;
-                Content = content;
-            }
 
         }
 
 
         public partial class Drawing {
 
-            [GeneratedRegex(@"^(.*?)\n", RegexOptions.Singleline)]
-            private static partial Regex EntityTypePattern();
+            [GeneratedRegex(@"^(.*?)\n")]
+            private static partial Regex ContourTypePattern();
 
-            [GeneratedRegex(@"^(\d+\.\d+) (\d+\.\d+) \d+\.\d+", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex(@"^ATT\n", RegexOptions.Singleline | RegexOptions.Multiline)]
+            private static partial Regex AttTypePattern();
+
+            [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex SizePattern();
 
 
             public readonly Dictionary<int, Point> Points   = [];
-            public readonly List<IEntity>          Entities = [];
+            public readonly Dictionary<int, Att>   Atts     = [];
+            public readonly List<List<SVGPath>>    Contours = [];
             public readonly Point                  Size;
 
             public Point LookupPoint(int idx) {
@@ -194,7 +228,7 @@ namespace Fasteroid {
 
                 var pre = await Load(filepath);
 
-                var headerLines = pre.GetOrElse(TYPES.SECTION.HEADER, "GEO has no header").First().Split('\n');
+                var headerLines = pre.GetOrElse(TYPES.SECTION.HEADER, "GEO has no header")[0][0].Split('\n');
                 var sizeMatch = SizePattern().MatchOrElse( headerLines.ElementAtOrDefault(5) ?? "", "Malformed GEO header" );
 
                 var drawing = new Drawing(
@@ -202,7 +236,7 @@ namespace Fasteroid {
                     float.Parse( sizeMatch.Groups[2].Value )
                 );
 
-                foreach( string ptBlock in pre.GetValueOrDefault(TYPES.SECTION.POINTS, []) ) {
+                foreach( string ptBlock in pre.GetValueOrDefault(TYPES.SECTION.POINTS, []).SelectMany(x => x) ) {
                     try {
                         (int id, Point p) = Point.FromBlock(ptBlock);
                         drawing.Points.Add(id, p);
@@ -212,39 +246,40 @@ namespace Fasteroid {
                     }
                 }
 
-                foreach( string txtBlock in pre.GetValueOrDefault(TYPES.SECTION.TEXT, []) ) {
-                    drawing.Entities.Add( new Text(txtBlock, drawing) );
-                }
+                foreach( List<string> contourBlocks in pre.GetValueOrDefault(TYPES.SECTION.ENTITIES, []) ) {
 
-                foreach( string entBlock in pre.GetValueOrDefault(TYPES.SECTION.ENTITIES, []) ) {
+                    var contour = new List<Entity>();
 
-                    var entMatch = EntityTypePattern().MatchOrElse(entBlock, $"Malformed line: {entBlock}");
+                    foreach( string contourBlock in contourBlocks ) {
 
-                    try {
-                        switch( entMatch.Groups[1].Value ) {
-                            case TYPES.ENTITY.LINE:
-                                drawing.Entities.Add( new Line(entBlock, drawing) );
-                            break;
+                        var entMatch = ContourTypePattern().MatchOrElse(contourBlock, $"Malformed contour: {contourBlock}");
 
-                            case TYPES.ENTITY.CIRCLE:
-                                drawing.Entities.Add( new Circle(entBlock, drawing) );
-                            break;
+                        try {
+                            switch( entMatch.Groups[1].Value ) {
+                                case TYPES.ENTITY.LINE:
+                                    contour.Add( new Line(contourBlock, drawing) );
+                                break;
 
-                            case TYPES.ENTITY.ARC:
-                                drawing.Entities.Add( new Arc(entBlock, drawing) );
-                            break;
+                                case TYPES.ENTITY.CIRCLE:
+                                    contour.Add( new Circle(contourBlock, drawing) );
+                                break;
 
-                            default:
-                                Console.Error.WriteLine($"Unknown entity type: {entMatch.Groups[1].Value}");
-                            break;
+                                case TYPES.ENTITY.ARC:
+                                    contour.Add( new Arc(contourBlock, drawing) );
+                                break;
+
+                                default:
+                                    Console.Error.WriteLine($"Unknown entity type: {entMatch.Groups[1].Value}");
+                                break;
+                            }
                         }
-                    }
-                    catch( Exception e ) {
-                        Console.Error.WriteLine($"Error parsing entity: {e.Message}");
+                        catch( Exception e ) {
+                            Console.Error.WriteLine($"Error parsing entity: {e.Message}");
+                        }
+
                     }
 
                 }
-
                 return drawing;
             }
 
