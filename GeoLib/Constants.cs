@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fasteroid {
+﻿namespace Fasteroid {
     public partial class GEOLib {
 
         /// <summary>
@@ -25,15 +19,18 @@ namespace Fasteroid {
                 public const int ENTITIES = 331;
             }
 
-            public static class ATT {
+
+            public static class ATT_TYPE {
                 public const int TEXT_SLAVE = 10;
             }
+
 
             public static class ENTITY {
                 public const string LINE   = "LIN";
                 public const string ARC    = "ARC";
                 public const string CIRCLE = "CIR";
             }
+
 
             public static class COLORS { 
                 public const int DEFAULT = 1;
