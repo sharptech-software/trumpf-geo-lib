@@ -15,7 +15,7 @@ namespace Fasteroid {
             public const string INT = @"-?\d+";
         }
 
-        public static class TYPES {
+        public static class CONSTANTS {
 
             public static class SECTION {
                 public const int HEADER   = 1;
@@ -43,6 +43,18 @@ namespace Fasteroid {
                 public const int CYAN    = 5;
                 public const int BLUE    = 6;
                 public const int MAGENTA = 7;
+
+                public static string Lookup(int color) {
+                    return color switch {
+                        RED     => "red",
+                        YELLOW  => "yellow",
+                        GREEN   => "green",
+                        CYAN    => "cyan",
+                        BLUE    => "blue",
+                        MAGENTA => "magenta",
+                        _       => "white"
+                    };
+                }
             }
 
             public static class STROKES {
@@ -50,6 +62,15 @@ namespace Fasteroid {
                 public const int DASH     = 1;
                 public const int DOT      = 2;
                 public const int DASHDOT  = 3;
+
+                public static string? Lookup(int stroke) {
+                    return stroke switch {
+                        DASH    => "5,5",
+                        DOT     => "1,5",
+                        DASHDOT => "5,5,1,5",
+                        _       => null
+                    };
+                }
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using static Fasteroid.GEOLib;
 
 namespace Fasteroid {
     public partial class GEOLib {
@@ -55,18 +54,9 @@ namespace Fasteroid {
 
         }
 
-
         public abstract class Att {
             public abstract Type Type { get; }
         }
-
-
-        public interface SVGPath {
-            string StartCommand  { get; }
-            string NextCommands  { get; }
-            double Length        { get; }
-        }
-
 
         public abstract partial class Entity {
 
@@ -81,7 +71,7 @@ namespace Fasteroid {
             public virtual int   Color      { get; }
             public virtual int   Stroke     { get; }
 
-            protected virtual bool SetupAttForMe => true;
+            protected virtual bool ParseAttByDefault => true;
             public virtual int? AttID { get; }
 
             public Entity( string block ): this(block, out string _) { }
@@ -94,15 +84,20 @@ namespace Fasteroid {
                 Color  = int.Parse(appearanceMatch.Groups[1].Value);
                 Stroke = int.Parse(appearanceMatch.Groups[2].Value);
 
-                if(SetupAttForMe) {
+                if( ParseAttByDefault ) {
                     var attMatch = AttPattern().Match(the_rest);
                     AttID = attMatch.Success ? int.Parse(attMatch.Groups[1].Value) : null;
                 }
             }
 
+            // svg interface
+
+            public virtual string  PathColor => CONSTANTS.COLORS.Lookup(Color);
+            public virtual string? PathDashPattern => CONSTANTS.STROKES.Lookup(Stroke);
+
         }
 
-        public partial class Line : Entity, SVGPath {
+        public partial class Line : Entity, ISVGPath {
 
             [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
@@ -120,12 +115,10 @@ namespace Fasteroid {
 
 
             // svg interface
-            public string StartCommand => $"M {Start.X} {Start.Y}";
-            public string NextCommands => $"L {End.X} {End.Y}";
-            public double Length => End.Distance(Start);
+            public string PathInstructions => $"M {Start.X} {Start.Y} L {End.X} {End.Y}";
         }
 
-        public partial class Circle : Entity, SVGPath {
+        public partial class Circle : Entity, ISVGPath {
 
             [GeneratedRegex($@"^({RE.INT})\n({RE.DEC})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
@@ -144,13 +137,10 @@ namespace Fasteroid {
             }
 
             // svg interface
-            public string StartCommand => $"M {Center.X} {Center.Y - Radius}";
-            public string NextCommands => $"a {Radius} {Radius} 180 1 0 0 {2 * Radius}\na {Radius} {Radius} 180 1 0 0 {-2 * Radius}";
-            public double Length => 2 * Math.PI * Radius;
-
+            public string PathInstructions => $"M {Center.X} {Center.Y - Radius} a {Radius} {Radius} 180 1 0 0 {2 * Radius}\na {Radius} {Radius} 180 1 0 0 {-2 * Radius}";
         }
 
-        public partial class Arc : Entity, SVGPath {
+        public partial class Arc : Entity, ISVGPath {
 
             [GeneratedRegex($@"({RE.INT}) ({RE.INT}) ({RE.INT})(\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
@@ -183,21 +173,12 @@ namespace Fasteroid {
                 Clockwise = match.Groups[4].Success;
 
                 Radius    = Center.Distance(End);
-                Length    = _ArcLength();
             }
-
 
             // svg interface
-            public string StartCommand => $"M {Start.X} {Start.Y}";
-
-            private string _NextCommands() {
-                return $"A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
-            }
-            public string NextCommands => _NextCommands();
-
+            public string PathInstructions => $"M {Start.X} {Start.Y} A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
 
         }
-
 
         public partial class Drawing {
 
@@ -210,10 +191,9 @@ namespace Fasteroid {
             [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex SizePattern();
 
-
-            public readonly Dictionary<int, Point> Points   = [];
-            public readonly Dictionary<int, Att>   Atts     = [];
-            public readonly List<List<SVGPath>>    Contours = [];
+            public readonly Dictionary<int, Point> Points = [];
+            public readonly Dictionary<int, Att>   Atts   = [];
+            public readonly List<ISVGPath>         Paths  = [];
             public readonly Point                  Size;
 
             public Point LookupPoint(int idx) {
@@ -228,7 +208,7 @@ namespace Fasteroid {
 
                 var pre = await Load(filepath);
 
-                var headerLines = pre.GetOrElse(TYPES.SECTION.HEADER, "GEO has no header")[0][0].Split('\n');
+                var headerLines = pre.GetOrElse(CONSTANTS.SECTION.HEADER, "GEO has no header")[0].Split('\n');
                 var sizeMatch = SizePattern().MatchOrElse( headerLines.ElementAtOrDefault(5) ?? "", "Malformed GEO header" );
 
                 var drawing = new Drawing(
@@ -236,7 +216,7 @@ namespace Fasteroid {
                     float.Parse( sizeMatch.Groups[2].Value )
                 );
 
-                foreach( string ptBlock in pre.GetValueOrDefault(TYPES.SECTION.POINTS, []).SelectMany(x => x) ) {
+                foreach( string ptBlock in pre.GetValueOrDefault(CONSTANTS.SECTION.POINTS, []) ) {
                     try {
                         (int id, Point p) = Point.FromBlock(ptBlock);
                         drawing.Points.Add(id, p);
@@ -246,37 +226,31 @@ namespace Fasteroid {
                     }
                 }
 
-                foreach( List<string> contourBlocks in pre.GetValueOrDefault(TYPES.SECTION.ENTITIES, []) ) {
+                foreach( string entityBlock in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
 
-                    var contour = new List<Entity>();
+                    var entMatch = ContourTypePattern().MatchOrElse(entityBlock, $"Malformed entity: {contourBlock}");
 
-                    foreach( string contourBlock in contourBlocks ) {
+                    try {
+                        switch( entMatch.Groups[1].Value ) {
+                            case CONSTANTS.ENTITY.LINE:
+                                drawing.Paths.Add( new Line(entityBlock, drawing) );
+                            break;
 
-                        var entMatch = ContourTypePattern().MatchOrElse(contourBlock, $"Malformed contour: {contourBlock}");
+                            case CONSTANTS.ENTITY.CIRCLE:
+                                drawing.Paths.Add( new Circle(entityBlock, drawing) );
+                            break;
 
-                        try {
-                            switch( entMatch.Groups[1].Value ) {
-                                case TYPES.ENTITY.LINE:
-                                    contour.Add( new Line(contourBlock, drawing) );
-                                break;
+                            case CONSTANTS.ENTITY.ARC:
+                                drawing.Paths.Add( new Arc(entityBlock, drawing) );
+                            break;
 
-                                case TYPES.ENTITY.CIRCLE:
-                                    contour.Add( new Circle(contourBlock, drawing) );
-                                break;
-
-                                case TYPES.ENTITY.ARC:
-                                    contour.Add( new Arc(contourBlock, drawing) );
-                                break;
-
-                                default:
-                                    Console.Error.WriteLine($"Unknown entity type: {entMatch.Groups[1].Value}");
-                                break;
-                            }
+                            default:
+                                Console.Error.WriteLine($"Unknown entity type: {entMatch.Groups[1].Value}");
+                            break;
                         }
-                        catch( Exception e ) {
-                            Console.Error.WriteLine($"Error parsing entity: {e.Message}");
-                        }
-
+                    }
+                    catch( Exception e ) {
+                        Console.Error.WriteLine($"Error parsing entity: {e.Message}");
                     }
 
                 }

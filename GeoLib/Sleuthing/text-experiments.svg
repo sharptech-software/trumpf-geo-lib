@@ -73,6 +73,13 @@
     stroke="none" fill="none"
   />
 
+
+  <path d="M 10 75 Q 50 10 100 75 T 190 75" stroke="black"
+    stroke-linecap="round" stroke-dasharray="12,5" fill="none"/>
+  <path d="M 10 75 L 190 75" stroke="red"
+    stroke-linecap="round" stroke-width="3" stroke-dasharray="0,10" fill="none"/>
+
+
 </svg>
 
 <!-- 
@@ -86,3 +93,4 @@
 
   (1,1)
  -->
+
