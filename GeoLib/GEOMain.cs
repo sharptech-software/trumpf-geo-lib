@@ -228,7 +228,7 @@ namespace Fasteroid {
 
                 foreach( string entityBlock in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
 
-                    var entMatch = ContourTypePattern().MatchOrElse(entityBlock, $"Malformed entity: {contourBlock}");
+                    var entMatch = ContourTypePattern().MatchOrElse(entityBlock, $"Malformed entity: {entityBlock}");
 
                     try {
                         switch( entMatch.Groups[1].Value ) {
