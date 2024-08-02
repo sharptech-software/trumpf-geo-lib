@@ -12,7 +12,7 @@ namespace Fasteroid {
 
             public readonly static Point ZERO = new Point(0,0);
 
-            [GeneratedRegex($@"({RE.INT})\n({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex($@"({RE.INT})\r?\n({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public readonly float X;

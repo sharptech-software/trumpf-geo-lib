@@ -17,7 +17,7 @@ TXT
 0.000000000 45.000000000            # ???, angle of text!
 9 1 1                               # ???, ???, number of lines!
 Angled Text 45
-1
+1                                   # number of ATTs?
 1                                   # associated ATT id
 |~
 TXT

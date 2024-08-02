@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
+using Fasteroid;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Fasteroid {
     public partial class GEOLib {
         public partial class Drawing {
 
-            [GeneratedRegex(@"^ATT\n", RegexOptions.Singleline | RegexOptions.Multiline)]
-            private static partial Regex AttTypePattern();
-
             [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) {RE.DEC}", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex SizePattern();
 
-            public readonly Dictionary<int, Point>     Points = [];
-            public readonly Dictionary<int, Attribute> Atts   = [];
-            public readonly List<ISVGElement>          Paths  = [];
+            public readonly Dictionary<int, Point>     Points    = [];
+            public readonly Dictionary<int, Attribute> Atts      = [];
+            public readonly List<Entity>               Entities  = [];
             public readonly Point                      Size;
 
             public Point LookupPoint(int idx) {
@@ -28,21 +22,18 @@ namespace Fasteroid {
                 Size = new Point(x, y);
             }
 
-            // easy construction 
-            [GeneratedRegex(@"^(.*?)\n")]
-            private static partial Regex EntityTypePattern();
-            public static ISVGElement ConstructFromBlock( string block, Drawing parent ) {
-                var match = EntityTypePattern().MatchOrElse(block, $"Malformed entity: {block}");
+            public Drawing(string header) {
+                try {
+                    header.SkipLines(5).TakeLines(1, out string size);
+                    var sizeMatch = SizePattern().MatchOrElse( size, "regex" );
 
-                switch( match.Groups[1].Value ) {
-                    case CONSTANTS.ENTITY.LINE:
-                        return new Line(block, parent);
-                    case CONSTANTS.ENTITY.CIRCLE:
-                        return new Circle(block, parent);
-                    case CONSTANTS.ENTITY.ARC:
-                        return new Arc(block, parent);
-                    default:
-                        throw new Exception($"Unknown entity type: {match.Groups[1].Value}");
+                    Size = new Point(
+                        float.Parse( sizeMatch.Groups[1].Value ),
+                        float.Parse( sizeMatch.Groups[2].Value )
+                    );
+                }
+                catch( Exception e ) {
+                    throw new FileLoadException("Malformed GEO header", e);
                 }
             }
 
@@ -50,17 +41,21 @@ namespace Fasteroid {
 
                 var pre = await Load(filepath);
 
-                var headerLines = pre.GetOrElse(CONSTANTS.SECTION.HEADER, "GEO has no header")[0].Split('\n');
-                var sizeMatch = SizePattern().MatchOrElse( headerLines.ElementAtOrDefault(5) ?? "", "Malformed GEO header" );
+                var drawing = new Drawing( pre.GetOrElse(CONSTANTS.SECTION.HEADER, "GEO has no header")[0] );
 
-                var drawing = new Drawing(
-                    float.Parse( sizeMatch.Groups[1].Value ),
-                    float.Parse( sizeMatch.Groups[2].Value )
-                );
-
-                foreach( string ptBlock in pre.GetValueOrDefault(CONSTANTS.SECTION.POINTS, []) ) {
+                foreach( string block in pre.GetValueOrDefault(CONSTANTS.SECTION.ATT, []) ) {
                     try {
-                        (int id, Point p) = Point.FromBlock(ptBlock);
+                        (int id, Attribute att) = Attribute.FromBlock(block);
+                        drawing.Atts.Add(id, att);
+                    }
+                    catch( Exception e ) {
+                        Console.Error.WriteLine($"Error parsing attribute: {e.Message}");
+                    }
+                }
+
+                foreach( string block in pre.GetValueOrDefault(CONSTANTS.SECTION.POINTS, []) ) {
+                    try {
+                        (int id, Point p) = Point.FromBlock(block);
                         drawing.Points.Add(id, p);
                     }
                     catch( Exception e ) {
@@ -68,9 +63,9 @@ namespace Fasteroid {
                     }
                 }
 
-                foreach( string entityBlock in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
+                foreach( string block in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
                     try {
-                        drawing.Paths.Add( ConstructFromBlock(entityBlock, drawing) );
+                        drawing.Entities.Add( Entity.FromBlock(block, drawing) );
                     }
                     catch( Exception e ) {
                         Console.Error.WriteLine($"Error parsing entity: {e.Message}");

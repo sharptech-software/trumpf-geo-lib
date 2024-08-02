@@ -42,52 +42,12 @@ namespace Fasteroid {
             return match;
         }
 
-
-        public static string TakeLines(this string self, int count, out string taken) {
-            int linesAcc = 1;
-            for (int i = 0; i < self.Length; i++) {
-
-                if(self[i] == '\n' ) {
-                    if (linesAcc == count) {
-                        taken = self.Substring(0, i);
-                        if (i + 1 == self.Length) {
-                            return "";
-                        }
-                        return self.Substring(i + 1);
-                    }
-
-                    linesAcc++;
-                }
-            }
-            if( linesAcc == count ) {
-                taken = self;
-                return "";
-            }
-            throw new ArgumentOutOfRangeException("count", $"Not enough lines to take (expected {count} but there were only {linesAcc})");
+        public static ReadOnlySpan<char> TakeInt(this ReadOnlySpan<char> self, out int value) {
+            var ret = self.TakeLines(1, out string str_int);
+            value = int.Parse(str_int);
+            return ret;
         }
 
-        public static string TakeLinesFromEnd(this string self, int count, out string taken) {
-            int linesAcc = 1;
-            for (int i = self.Length - 1; i >= 0; i--) {
-
-                if (self[i] == '\n') {
-                    if (linesAcc == count) {
-                        taken = self.Substring(i + 1);
-                        if (i == 0) {
-                            return "";
-                        }
-                        return self.Substring(0, i);
-                    }
-
-                    linesAcc++;
-                }
-            }
-            if (linesAcc == count) {
-                taken = self;
-                return "";
-            }
-            throw new ArgumentOutOfRangeException("count", $"Not enough lines to take (expected {count} but there were only {linesAcc})");
-        }
     }
 
 }
