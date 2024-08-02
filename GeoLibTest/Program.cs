@@ -4,7 +4,8 @@ using System.Diagnostics;
 var test = await GEOLib.Drawing.FromFile( @"./Sleuthing/GeoTests.GEO" );
 
 var experiment = test.Entities
-    .Where(e => e.Att != null);
+    .Where(e => e.Att != null)
+    .ToList();
 
 
 Console.WriteLine("experiment ready!");

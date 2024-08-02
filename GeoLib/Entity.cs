@@ -47,18 +47,28 @@ namespace Fasteroid {
             public virtual string  PathColor => CONSTANTS.COLORS.Lookup(Color);
             public virtual string? PathDashPattern => CONSTANTS.STROKES.Lookup(Stroke);
 
-            public static Entity FromBlock( string block, Drawing parent ) {
+            public static bool ShouldRender( Entity ent ) {
+                return ent.Att?.Type != CONSTANTS.ATT_TYPE.TEXT_SLAVE;
+            }
+
+            public static Entity? FromBlock( string block, Drawing parent ) {
                 var entblock = block.TakeLines(1, out string type);
+                Entity ent;
                 switch( type ) {
                     case CONSTANTS.ENTITY.LINE:
-                        return new Line(entblock, parent);
+                        ent = new Line(entblock, parent);
+                    break;
                     case CONSTANTS.ENTITY.CIRCLE:
-                        return new Circle(entblock, parent);
+                        ent = new Circle(entblock, parent);
+                    break;
                     case CONSTANTS.ENTITY.ARC:
-                        return new Arc(entblock, parent);
+                        ent = new Arc(entblock, parent);
+                    break;
                     default:
-                        return new Entity(entblock, parent, type);
+                        ent = new Entity(entblock, parent, type);
+                    break;
                 }
+                return ShouldRender(ent) ? ent : null;
             }
         }
 
