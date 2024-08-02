@@ -4,16 +4,26 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>Fasteroid.GEOLib</AssemblyName>
-    <RootNamespace>Fasteroid</RootNamespace>
+    <AssemblyName>SharpTech.GEOLib</AssemblyName>
+    <RootNamespace>SharpTech</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Entities\" />
   </ItemGroup>
+  
+   <PropertyGroup>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <Version>1.0.0</Version>
+    <Authors>Fasteroid1150</Authors>
+    <RepositoryUrl>https://github.com/sharptech-software/trumpf-geo-lib/</RepositoryUrl>
+    <PackageTags>CAD, Trumpf, TruTops</PackageTags>
+    <Company></Company>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Fasteroid.ParallelUtils" Version="1.0.0" />
+    <PackageReference Include="Fasteroid.StrinQ" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
