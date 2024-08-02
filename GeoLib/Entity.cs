@@ -15,8 +15,18 @@ namespace Fasteroid {
             public virtual int    Color  { get; }
             public virtual int    Stroke { get; }
 
-            protected virtual bool ParseAttByDefault => true;
             public    virtual Attribute? Att { get; }
+
+            protected virtual Attribute? GetAttFromData(ref ReadOnlySpan<char> entdata) {
+                var attRemoved = entdata.TakeLinesFromEnd(1, out string strAttRef)
+                                        .TakeLinesFromEnd(1, out string strIdk); // not sure what this, but it's always a single int
+
+                if( int.TryParse(strAttRef, out int attRef) && int.TryParse(strIdk, out int _) ) {
+                    entdata = attRemoved;
+                    return Parent.Atts.GetOrElse(attRef, $"Attribute {attRef} not found");
+                }
+                return null;
+            }
 
             public readonly Drawing Parent;
 
@@ -32,15 +42,7 @@ namespace Fasteroid {
                 Color  = int.Parse(appearanceMatch.Groups[1].Value);
                 Stroke = int.Parse(appearanceMatch.Groups[2].Value);
 
-                if( ParseAttByDefault ) {
-                    var attRemoved = entdata.TakeLinesFromEnd(1, out string strAttRef)
-                                            .TakeLinesFromEnd(1, out string strIdk); // not sure what this, but it's always a single int
-
-                    if( int.TryParse(strAttRef, out int attRef) && int.TryParse(strIdk, out int _) ) {
-                        Att = parent.Atts.GetOrElse(attRef, $"Attribute {attRef} not found");
-                        entdata = attRemoved;
-                    }
-                }
+                Att = GetAttFromData(ref entdata);
             }
 
             // svg interface
@@ -48,27 +50,21 @@ namespace Fasteroid {
             public virtual string? PathDashPattern => CONSTANTS.STROKES.Lookup(Stroke);
 
             public static bool ShouldRender( Entity ent ) {
-                return ent.Att?.Type != CONSTANTS.ATT_TYPE.TEXT_SLAVE;
+                return ent.Att?.Type != CONSTANTS.ATTRIBUTE.TEXT_SLAVE;
             }
 
             public static Entity? FromBlock( string block, Drawing parent ) {
                 var entblock = block.TakeLines(1, out string type);
-                Entity ent;
                 switch( type ) {
                     case CONSTANTS.ENTITY.LINE:
-                        ent = new Line(entblock, parent);
-                    break;
+                        return new Line(entblock, parent);
                     case CONSTANTS.ENTITY.CIRCLE:
-                        ent = new Circle(entblock, parent);
-                    break;
+                        return new Circle(entblock, parent);
                     case CONSTANTS.ENTITY.ARC:
-                        ent = new Arc(entblock, parent);
-                    break;
+                        return new Arc(entblock, parent);
                     default:
-                        ent = new Entity(entblock, parent, type);
-                    break;
+                        return new Entity(entblock, parent, type);
                 }
-                return ShouldRender(ent) ? ent : null;
             }
         }
 

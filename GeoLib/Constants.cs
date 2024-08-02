@@ -20,8 +20,9 @@
             }
 
 
-            public static class ATT_TYPE {
-                public const int TEXT_SLAVE = 10;
+            public static class ATTRIBUTE {
+                public const int TEXT_SLAVE   = 10;
+                public const int PROCESS_TYPE = 18; // does nothing right now but nice to keep track of
             }
 
 

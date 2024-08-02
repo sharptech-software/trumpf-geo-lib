@@ -65,7 +65,8 @@ namespace Fasteroid {
 
                 foreach( string block in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
                     try {
-                        drawing.Entities.Add( Entity.FromBlock(block, drawing) );
+                        var ent = Entity.FromBlock(block, drawing);
+                        if( ent != null ) drawing.Entities.Add( ent );
                     }
                     catch( Exception e ) {
                         Console.Error.WriteLine($"Error parsing entity: {e.Message}");
