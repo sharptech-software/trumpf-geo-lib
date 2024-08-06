@@ -55,9 +55,9 @@ namespace Fasteroid {
                 Att = GetAttFromData(ref block);
             }
 
-            // svg interface
-            public virtual string  PathColor => CONSTANTS.COLORS.Lookup(Color);
-            public virtual string? PathDashPattern => CONSTANTS.STROKES.Lookup(Stroke);
+            // svg interface defaults
+            public virtual string  PathColor         => CONSTANTS.COLORS.Lookup(Color);
+            public virtual string? PathStrokePattern => CONSTANTS.STROKES.Lookup(Stroke);
 
             /// <summary>
             /// Creates a drawing entity from a block of entity data.
