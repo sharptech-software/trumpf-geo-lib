@@ -5,18 +5,22 @@ namespace Fasteroid {
 
         public partial class Entity {
 
-            // "entblock" refers to an entity block with the first line (its type) removed
-            // "entdata"  refers to everything that follows the standard properties for all entities
-
             [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline)]
             protected static partial Regex AppearancePattern();
 
-            public virtual string Type   { get; }
-            public virtual int    Color  { get; }
-            public virtual int    Stroke { get; }
+            public readonly Drawing Parent;
+            public virtual string     Type   { get; }
+            public virtual int        Color  { get; }
+            public virtual int        Stroke { get; }
+            public virtual Attribute? Att    { get; } // todo: can multiple attributes be attached to an entity?
 
-            public    virtual Attribute? Att { get; }
-
+            /// <summary>
+            /// Extracts an attribute from entity data (if it exists) and self-modifies the data to remove the attribute reference.<br/>
+            /// Used in the constructor to extract the attribute from the entity block.<br/>
+            /// This is virtual so subclasses can override it if data at the end of the block might be mistaken for an attribute.
+            /// </summary>
+            /// <param name="entdata"></param>
+            /// <returns>Attribute if it exists or null</returns>
             protected virtual Attribute? GetAttFromData(ref ReadOnlySpan<char> entdata) {
                 var attRemoved = entdata.TakeLinesFromEnd(1, out string strAttRef)
                                         .TakeLinesFromEnd(1, out string strIdk); // not sure what this, but it's always a single int
@@ -28,13 +32,19 @@ namespace Fasteroid {
                 return null;
             }
 
-            public readonly Drawing Parent;
+            /// <summary>
+            /// If this is false after an entity instantiates, <see cref="FromBlock(string, Drawing)"/> won't return the entity.
+            /// </summary>
+            protected virtual bool ShouldRender => Att?.Type != CONSTANTS.ATTRIBUTE.TEXT_SLAVE;
 
-            public Entity( ReadOnlySpan<char> entblock, Drawing parent, string type ): this(entblock, parent, type, out ReadOnlySpan<char> _) { }
-
-            public Entity( ReadOnlySpan<char> entblock, Drawing parent, string type, out ReadOnlySpan<char> entdata) {
+            /// <summary>
+            /// Base entity constructor; least descriptive.<br/>
+            /// Probably shouldn't be used directly.
+            /// </summary>
+            /// <param name="block">An entity block from the GEO file, which has had its type stripped via <see cref="FromBlock(string, Drawing)"/></param>
+            protected Entity( ref ReadOnlySpan<char> block, Drawing parent, string type ) {
                 Parent  = parent;
-                entdata = entblock.TakeLines(1, out string appearance);
+                block   = block.TakeLines(1, out string appearance);
 
                 Type = type;
 
@@ -42,29 +52,26 @@ namespace Fasteroid {
                 Color  = int.Parse(appearanceMatch.Groups[1].Value);
                 Stroke = int.Parse(appearanceMatch.Groups[2].Value);
 
-                Att = GetAttFromData(ref entdata);
+                Att = GetAttFromData(ref block);
             }
 
             // svg interface
             public virtual string  PathColor => CONSTANTS.COLORS.Lookup(Color);
             public virtual string? PathDashPattern => CONSTANTS.STROKES.Lookup(Stroke);
 
-            public static bool ShouldRender( Entity ent ) {
-                return ent.Att?.Type != CONSTANTS.ATTRIBUTE.TEXT_SLAVE;
-            }
-
+            /// <summary>
+            /// Creates a drawing entity from a block of entity data.
+            /// </summary>
             public static Entity? FromBlock( string block, Drawing parent ) {
                 var entblock = block.TakeLines(1, out string type);
-                switch( type ) {
-                    case CONSTANTS.ENTITY.LINE:
-                        return new Line(entblock, parent);
-                    case CONSTANTS.ENTITY.CIRCLE:
-                        return new Circle(entblock, parent);
-                    case CONSTANTS.ENTITY.ARC:
-                        return new Arc(entblock, parent);
-                    default:
-                        return new Entity(entblock, parent, type);
-                }
+                var ent = (type) switch {
+                    CONSTANTS.ENTITY.LINE   => new Line(entblock, parent),
+                    CONSTANTS.ENTITY.CIRCLE => new Circle(entblock, parent),
+                    CONSTANTS.ENTITY.ARC    => new Arc(entblock, parent),
+                    _                       => new Entity(ref entblock, parent, type)
+                };
+                if( ent.ShouldRender ) return ent;
+                else return null;
             }
         }
 

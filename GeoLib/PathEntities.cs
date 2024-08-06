@@ -11,8 +11,8 @@ namespace Fasteroid {
             public readonly Point Start;
             public readonly Point End;
 
-            internal Line( ReadOnlySpan<char> entblock, Drawing parent ) : base( entblock, parent, CONSTANTS.ENTITY.LINE, out ReadOnlySpan<char> entdata ) { 
-                var match = Pattern().MatchOrElse(entdata.ToString(), $"Malformed line: {entdata}");
+            internal Line( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.LINE ) { 
+                var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed line: {entblock}");
                 Start   = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 End     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
             }
@@ -24,14 +24,14 @@ namespace Fasteroid {
 
         public partial class Circle : Entity, ISVGPath {
 
-            [GeneratedRegex($@"^({RE.INT})\n({RE.DEC})$", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex($@"^({RE.INT})\r?\n({RE.DEC})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public readonly Point Center;
             public readonly float Radius;
 
-            internal Circle( ReadOnlySpan<char> entblock, Drawing parent ) : base( entblock, parent, CONSTANTS.ENTITY.CIRCLE, out ReadOnlySpan<char> entdata ) {
-                var match = Pattern().MatchOrElse(entdata.ToString(), $"Malformed circle: {entdata}");
+            internal Circle( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.CIRCLE ) {
+                var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed circle: {entblock}");
                 Center = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Radius = float.Parse(match.Groups[2].Value);
             }
@@ -42,7 +42,7 @@ namespace Fasteroid {
 
         public partial class Arc : Entity, ISVGPath {
 
-            [GeneratedRegex($@"({RE.INT}) ({RE.INT}) ({RE.INT})(\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
+            [GeneratedRegex($@"({RE.INT}) ({RE.INT}) ({RE.INT})(\r?\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
             public readonly Point Start;
@@ -52,8 +52,8 @@ namespace Fasteroid {
 
             public readonly double Radius;
 
-            internal Arc( ReadOnlySpan<char> entblock, Drawing parent ) : base( entblock, parent, CONSTANTS.ENTITY.ARC, out ReadOnlySpan<char> entdata ) {
-                var match = Pattern().MatchOrElse(entdata.ToString(), $"Malformed arc: {entdata}");
+            internal Arc( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.ARC ) {
+                var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed arc: {entblock}");
                 Start     = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Center    = parent.LookupPoint(int.Parse(match.Groups[2].Value));
                 End       = parent.LookupPoint(int.Parse(match.Groups[3].Value));
