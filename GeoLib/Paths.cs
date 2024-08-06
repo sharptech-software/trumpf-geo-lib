@@ -11,7 +11,7 @@ namespace Fasteroid {
             public readonly Point Start;
             public readonly Point End;
 
-            internal Line( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.LINE ) { 
+            internal Line(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.LINE) { 
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed line: {entblock}");
                 Start   = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 End     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
@@ -30,7 +30,7 @@ namespace Fasteroid {
             public readonly Point Center;
             public readonly float Radius;
 
-            internal Circle( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.CIRCLE ) {
+            internal Circle(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.CIRCLE) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed circle: {entblock}");
                 Center = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Radius = float.Parse(match.Groups[2].Value);
@@ -52,7 +52,7 @@ namespace Fasteroid {
 
             public readonly double Radius;
 
-            internal Arc( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.ARC ) {
+            internal Arc(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.ARC) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed arc: {entblock}");
                 Center    = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Start     = parent.LookupPoint(int.Parse(match.Groups[2].Value));

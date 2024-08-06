@@ -18,7 +18,7 @@ ATT
 10                                   # type (10 is circular text)
 10.532737107 0.590521986 0.000000000 # pos
 0
-1                                    # horizontal alignment (0 = left, 1 = center, 2 = right )
+1                                    # horizontal alignment (0 = left, 1 = center, 2 = right)
 1                                    # vertical alignment   (0 = top,  1 = center, 2 = bottom)
 0.100000000                          # text height
 1.000000000                          # width / height ratio

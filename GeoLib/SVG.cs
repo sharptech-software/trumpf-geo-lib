@@ -13,7 +13,7 @@ namespace Fasteroid {
             /// Provides the parent SVG so the developer can allocate unique IDs for hrefs.
             /// </summary>
             /// <returns>svg code</returns>
-            string ToSVGElement(SVG parent) => "";
+            string? ToSVGElement(SVG parent) => null;
         }
 
         public interface ISVGPath : ISVGElement {
@@ -45,7 +45,7 @@ namespace Fasteroid {
 
             private int idAcc = 0;
 
-            public SVG( float width, float height ) {
+            public SVG(float width, float height) {
                 Width = width;
                 Height = height;
             }
@@ -55,7 +55,8 @@ namespace Fasteroid {
                 svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
                 svg.Append("<style> * { vector-effect: non-scaling-stroke; } </style>");
                 foreach (var child in Children) {
-                    svg.Append( child.ToSVGElement(this) );
+                    var childSVG = child.ToSVGElement(this);
+                    if(childSVG != null) svg.Append(childSVG);
                 }
                 svg.Append("</svg>");
                 return svg.ToString();
