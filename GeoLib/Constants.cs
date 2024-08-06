@@ -12,11 +12,12 @@
         public static class CONSTANTS {
 
             public static class SECTION {
-                public const int HEADER   = 1;
-                public const int POINTS   = 31;
-                public const int TEXT     = 32;
-                public const int ATT      = 36;
-                public const int ENTITIES = 331;
+                public const int HEADER        = 1;
+                public const int POINTS        = 31;
+                public const int TEXT          = 32;
+                public const int ATT           = 36;
+                public const int ENTITIES      = 331;
+                public const int BEND_ENTITIES = 371;
             }
 
 
@@ -44,13 +45,13 @@
 
                 public static string Lookup(int color) {
                     return color switch {
-                        RED     => "red",
-                        YELLOW  => "yellow",
-                        GREEN   => "green",
-                        CYAN    => "cyan",
-                        BLUE    => "blue",
-                        MAGENTA => "magenta",
-                        _       => "white"
+                        RED     => "#f00",
+                        YELLOW  => "#ff0",
+                        GREEN   => "#0f0",
+                        CYAN    => "#0ff",
+                        BLUE    => "#00f",
+                        MAGENTA => "#f0f",
+                        _       => "#000"
                     };
                 }
             }

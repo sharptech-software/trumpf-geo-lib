@@ -54,10 +54,10 @@ namespace Fasteroid {
 
             internal Arc( ReadOnlySpan<char> entblock, Drawing parent ) : base( ref entblock, parent, CONSTANTS.ENTITY.ARC ) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed arc: {entblock}");
-                Start     = parent.LookupPoint(int.Parse(match.Groups[1].Value));
-                Center    = parent.LookupPoint(int.Parse(match.Groups[2].Value));
+                Center    = parent.LookupPoint(int.Parse(match.Groups[1].Value));
+                Start     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
                 End       = parent.LookupPoint(int.Parse(match.Groups[3].Value));
-                Clockwise = match.Groups[4].Success;
+                Clockwise = !match.Groups[4].Success;
 
                 Radius    = Center.Distance(End);
             }

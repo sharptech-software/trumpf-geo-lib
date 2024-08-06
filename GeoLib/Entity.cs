@@ -3,7 +3,7 @@
 namespace Fasteroid {
     public partial class GEOLib {
 
-        public partial class Entity {
+        public partial class Entity : ISVGElement {
 
             [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline)]
             protected static partial Regex AppearancePattern();

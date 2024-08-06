@@ -1,6 +1,7 @@
 ﻿
 using Fasteroid;
 using System.Text.RegularExpressions;
+using static Fasteroid.GEOLib;
 
 namespace Fasteroid {
     public partial class GEOLib {
@@ -37,6 +38,26 @@ namespace Fasteroid {
                 }
             }
 
+            public SVG ToSVG() { 
+                SVG svg = new(Size.X, Size.Y);
+                foreach( var ent in Entities ) {
+                    svg.Children.Add( ent );
+                }
+                return svg;
+            }
+
+            internal void AddEntities(List<string> blocks) {
+                foreach( string block in blocks ) {
+                    try {
+                        var ent = Entity.FromBlock(block, this);
+                        if( ent != null ) Entities.Add( ent );
+                    }
+                    catch( Exception e ) {
+                        Console.Error.WriteLine($"Error parsing entity: {e.Message}");
+                    }
+                }
+            }
+
             public static async Task< Drawing > FromFile( string filepath ) {
 
                 var pre = await Load(filepath);
@@ -63,16 +84,9 @@ namespace Fasteroid {
                     }
                 }
 
-                foreach( string block in pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) ) {
-                    try {
-                        var ent = Entity.FromBlock(block, drawing);
-                        if( ent != null ) drawing.Entities.Add( ent );
-                    }
-                    catch( Exception e ) {
-                        Console.Error.WriteLine($"Error parsing entity: {e.Message}");
-                    }
+                drawing.AddEntities( pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []) );
+                drawing.AddEntities( pre.GetValueOrDefault(CONSTANTS.SECTION.BEND_ENTITIES, []) );
 
-                }
                 return drawing;
             }
 

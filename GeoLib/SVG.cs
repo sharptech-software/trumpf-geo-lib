@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,17 +9,21 @@ namespace Fasteroid {
     public partial class GEOLib {
 
         public interface ISVGElement {
-            string ToSVGElement();
+            /// <summary>
+            /// Provides the parent SVG so the developer can allocate unique IDs for hrefs.
+            /// </summary>
+            /// <returns>svg code</returns>
+            string ToSVGElement(SVG parent) => "";
         }
 
         public interface ISVGPath : ISVGElement {
             string PathInstructions { get; }
             string PathColor { get => "black"; }
             string? PathStrokePattern { get => null; }
-            string PathStrokeWidth { get => PathStrokePattern == null ? "1" : "2"; }
+            float PathStrokeWidth { get => PathStrokePattern == null ? 1 : 2; }
 
             // Default implementation of ToSVGElement for ISVGPath
-            string ISVGElement.ToSVGElement()
+            string ISVGElement.ToSVGElement(SVG parent)
             {
                 StringBuilder svg = new();
                 svg.Append($@"<path d=""{PathInstructions}"" fill=""none"" stroke=""{PathColor}"" stroke-width=""{PathStrokeWidth}"" stroke-linecap=""round""");
@@ -47,9 +52,10 @@ namespace Fasteroid {
 
             public override string ToString() {
                 StringBuilder svg = new();
-                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""{Width}"" height=""{Height}"" viewBox=""0 0 {Width} {Height}"">");
+                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
+                svg.Append("<style> * { vector-effect: non-scaling-stroke; } </style>");
                 foreach (var child in Children) {
-                    svg.Append( child.ToSVGElement() );
+                    svg.Append( child.ToSVGElement(this) );
                 }
                 svg.Append("</svg>");
                 return svg.ToString();
