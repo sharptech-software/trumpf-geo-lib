@@ -31,6 +31,7 @@
                 public const string LINE   = "LIN";
                 public const string ARC    = "ARC";
                 public const string CIRCLE = "CIR";
+                public const string TEXT   = "TXT";
             }
 
 
@@ -71,6 +72,7 @@
                     };
                 }
             }
+
         }
     }
 }

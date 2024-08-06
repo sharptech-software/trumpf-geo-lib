@@ -35,6 +35,18 @@ C:\TRUMPF.NET\Data\iso.fnt           # take a wild guess
 |~
 
 
+TXT
+3 1                                 # object color!, stroke type!
+41                                  # origin point!
+0.500000000 1.000000000 0.000000000 # line height!, width / height ratio!, ???
+0.000000000 45.000000000            # ???, angle of text!
+9 1 1                               # "reference" position!, write direction?, number of lines!
+Angled Text 45
+1                                   # number of ATTs?
+1                                   # associated ATT id
+|~
+
+
 # ------------------------------------------------------------
 
 # ATT type 10 seems to be the "circular text" attribute data.

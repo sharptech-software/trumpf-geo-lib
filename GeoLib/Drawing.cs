@@ -84,6 +84,8 @@ namespace Fasteroid {
                     }
                 }
 
+
+                drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.TEXT, []));
                 drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []));
                 drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.BEND_ENTITIES, []));
 

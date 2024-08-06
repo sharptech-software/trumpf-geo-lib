@@ -5,8 +5,8 @@ namespace Fasteroid {
 
         public partial class Entity : ISVGElement {
 
-            [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$"  , RegexOptions.Singleline)]
-            protected static partial Regex AppearancePattern();
+            [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline)]
+            private static partial Regex AppearancePattern();
 
             public readonly Drawing Parent;
             public virtual string     Type   { get; }
@@ -68,6 +68,7 @@ namespace Fasteroid {
                     CONSTANTS.ENTITY.LINE   => new Line(entblock, parent),
                     CONSTANTS.ENTITY.CIRCLE => new Circle(entblock, parent),
                     CONSTANTS.ENTITY.ARC    => new Arc(entblock, parent),
+                    CONSTANTS.ENTITY.TEXT   => new Text(entblock, parent),
                     _                       => new Entity(ref entblock, parent, type)
                 };
                 if(ent.ShouldRender) return ent;
