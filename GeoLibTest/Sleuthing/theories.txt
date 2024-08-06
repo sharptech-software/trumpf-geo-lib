@@ -1,0 +1,58 @@
+
+#~32
+TXT
+3 1
+23
+0.500000000 1.000000000 0.000000000
+0.000000000 0.000000000
+9 1 1
+Example Text
+1
+1
+|~
+TXT
+3 1                                 # object color!, stroke type*!
+41                                  # origin point!
+0.500000000 1.000000000 0.000000000 # font height!, width/height ratio!, inclination angle!
+0.000000000 45.000000000            # line spacing**!, angle of text!
+9 1 1                               # alignment ref!, write direction?, number of lines!
+Angled Text 45
+1                                   # number of ATTs?
+1                                   # associated ATT id!
+|~
+TXT
+3 1
+33
+0.500000000 1.000000000 0.000000000
+0.000000000 0.000000000
+18 1 2                              
+Multiline
+Text
+1
+1
+|~
+##~~
+
+# *for fonts stroke type equates to font ID
+# **line spacing <= 0.0 is illegal and is interpreted as 1.0
+
+
+
+#~331
+LIN
+4 1
+10 9
+1
+2         # associated ATT id
+|~
+##~~
+#~KONT_END
+##~~
+#~331
+LIN
+4 0
+17 16
+1
+2
+|~
+##~~

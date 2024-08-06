@@ -9,7 +9,7 @@
             public const string INT = @"-?\d+";
         }
 
-        public static class CONSTANTS {
+        public static partial class ENUMS {
 
             public static class SECTION {
                 public const int HEADER        = 1;
@@ -31,6 +31,7 @@
                 public const string LINE   = "LIN";
                 public const string ARC    = "ARC";
                 public const string CIRCLE = "CIR";
+                public const string TEXT   = "TXT";
             }
 
 
@@ -71,6 +72,7 @@
                     };
                 }
             }
+
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Fasteroid {
             public readonly Point Start;
             public readonly Point End;
 
-            internal Line(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.LINE) { 
+            internal Line(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.LINE) { 
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed line: {entblock}");
                 Start   = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 End     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
@@ -28,12 +28,12 @@ namespace Fasteroid {
             private static partial Regex Pattern();
 
             public readonly Point Center;
-            public readonly float Radius;
+            public readonly double Radius;
 
-            internal Circle(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.CIRCLE) {
+            internal Circle(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.CIRCLE) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed circle: {entblock}");
                 Center = parent.LookupPoint(int.Parse(match.Groups[1].Value));
-                Radius = float.Parse(match.Groups[2].Value);
+                Radius = double.Parse(match.Groups[2].Value);
             }
 
             // svg interface
@@ -52,12 +52,12 @@ namespace Fasteroid {
 
             public readonly double Radius;
 
-            internal Arc(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, CONSTANTS.ENTITY.ARC) {
+            internal Arc(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.ARC) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed arc: {entblock}");
                 Center    = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Start     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
                 End       = parent.LookupPoint(int.Parse(match.Groups[3].Value));
-                Clockwise = !match.Groups[4].Success;
+                Clockwise = match.Groups[4].Success;
 
                 Radius    = Center.Distance(End);
             }

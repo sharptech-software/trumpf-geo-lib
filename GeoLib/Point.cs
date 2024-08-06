@@ -15,12 +15,12 @@ namespace Fasteroid {
             [GeneratedRegex($@"({RE.INT})\r?\n({RE.DEC}) ({RE.DEC}) {RE.DEC}"  , RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly float X;
-            public readonly float Y;
+            public readonly double X;
+            public readonly double Y;
 
-            public Point(float x, float y) {
+            public Point(double x, double y) {
                 X = x;
-                Y = y;
+                Y = -y; // flip y axis to match SVG
             }
 
             public static Point operator +(Point a, Point b) {
@@ -50,8 +50,8 @@ namespace Fasteroid {
                 return (
                     int.Parse(match.Groups[1].Value),
                     new Point(
-                        float.Parse(match.Groups[2].Value),
-                        float.Parse(match.Groups[3].Value)
+                        double.Parse(match.Groups[2].Value),
+                        double.Parse(match.Groups[3].Value)
                  )
              );
             }

@@ -14,24 +14,25 @@ namespace Fasteroid {
 
     internal static class ExtensionMethods {
         public static V GetOrAdd<K, V>(this Dictionary<K, V> self, K key) where K : notnull where V : new() {
-            if (!self.ContainsKey(key)) {
-                self[key] = new V();
+            if (!self.TryGetValue(key, out V? value) ) {
+                value = new V();
+                self[key] = value;
             }
-            return self[key];
+            return value;
         }
 
         public static V GetOrElse<K, V>(this Dictionary<K, V> self, K key, string assertion) where K : notnull {
-            if(!self.ContainsKey(key)) {
+            if(!self.TryGetValue(key, out V? value) ) {
                 throw new KeyNotFoundException(assertion);
             }
-            return self[key];
+            return value;
         }
 
         public static V GetValueOrDefault<K, V>(this Dictionary<K, V> self, K key, V defaultValue) where K : notnull {
-            if (!self.ContainsKey(key)) {
+            if (!self.TryGetValue(key, out V? value) ) {
                 return defaultValue;
             }
-            return self[key];
+            return value;
         }
 
         public static Match MatchOrElse(this Regex self, string input, string message) {

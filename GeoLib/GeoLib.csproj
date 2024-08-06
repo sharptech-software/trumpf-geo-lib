@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="Entities\" />
+    <Folder Include="Fonts\" />
   </ItemGroup>
   
    <PropertyGroup>
@@ -20,11 +21,10 @@
     <PackageTags>CAD, Trumpf, TruTops</PackageTags>
     <Company></Company>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Fasteroid.ParallelUtils" Version="1.0.0" />
-    <PackageReference Include="Fasteroid.StrinQ" Version="1.0.2" />
-  </ItemGroup>
+  
+   <ItemGroup>
+     <PackageReference Include="Fasteroid.StrinQ" Version="1.0.2" />
+   </ItemGroup>
 
   <ItemGroup>
     <None Update="Example01.GEO">
