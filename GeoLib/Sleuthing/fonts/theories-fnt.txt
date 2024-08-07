@@ -1,0 +1,23 @@
+TRUMPF's propriateary .FNT appears to be similar in structure to their .GEO files
+
+#~HEADER
+iso.fnt  # name!
+64       # 
+120      # 
+96       # 
+32       # baseline!
+156
+0.533    # aspect ratio? but why?
+##~~
+#~2
+!        # character!
+1        # ???
+#~2.1
+4        # number of instructions!
+M 32 32  # move instruction?
+D 32 32  # draw instruction?
+M 32 48
+D 32 96
+|~
+##~~
+
