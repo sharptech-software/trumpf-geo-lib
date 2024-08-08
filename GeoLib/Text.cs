@@ -24,7 +24,7 @@ namespace Fasteroid {
             public string InnerText  { get; }
 
             private readonly int _Justification;
-            public (int, int) Justification => ((_Justification >> 3) - 1, (_Justification & 7) - 2);
+            public (int, int) Justification => (-((_Justification >> 3) - 1), -((_Justification & 7) - 2));
 
             internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, CONSTANTS.ENTITY.CIRCLE) {
 
