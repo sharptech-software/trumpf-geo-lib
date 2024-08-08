@@ -3,7 +3,49 @@
 namespace Fasteroid {
     public partial class GEOLib {
 
-        public partial class Text : Entity {
+        public static partial class CONSTANTS {
+            public static class TEXT {
+
+                public static class FONTS {
+                    public const int BOLD    = 131;
+                    public const int ISOPROP = 130;
+                    public const int ISODIM  = 9;
+                    public const int ISO     = 1;
+
+                    public static string Lookup(int font) => font switch {
+                        BOLD    => "BOLD",
+                        ISOPROP => "ISOPROP",
+                        ISODIM  => "iso_dim",
+                        ISO     => "ISO",
+                        _       => throw new ArgumentException("Tried to look up nonexistant font type")
+                    };
+                }
+
+                public static class ALIGN {
+                    public const int AFTER  = 0b001;
+                    public const int MIDDLE = 0b010;
+                    public const int BEFORE = 0b100;
+                    public static string Vertical(int alignment) {
+                        return alignment switch {
+                            AFTER  => "hanging",
+                            MIDDLE => "middle",
+                            BEFORE => "baseline",
+                            _      => throw new ArgumentException("Tried to look up nonexistant alignment type")
+                        };
+                    }
+                    public static string Horizontal(int alignment) {
+                        return alignment switch {
+                            AFTER  => "end",
+                            MIDDLE => "middle",
+                            BEFORE => "start",
+                            _      => throw new ArgumentException("Tried to look up nonexistant alignment type")
+                        };
+                    }
+                }
+            }
+        }
+
+        public partial class Text : Entity, ISVGElement {
 
             [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) ({RE.DEC})", RegexOptions.Singleline)]
             private static partial Regex Layout1Pattern();
@@ -23,8 +65,10 @@ namespace Fasteroid {
             public float  Angle      { get; }
             public string InnerText  { get; }
 
-            private readonly int _Justification;
-            public (int, int) Justification => (-((_Justification >> 3) - 1), -((_Justification & 7) - 2));
+            private readonly int _Alignment;
+            public (int, int) Alignment => ((_Alignment >> 3), (_Alignment & 0b111));
+
+            public string Font => CONSTANTS.TEXT.FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
 
             internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, CONSTANTS.ENTITY.CIRCLE) {
 
@@ -44,7 +88,7 @@ namespace Fasteroid {
 
                 Angle      = float.Parse(angleMatch.Groups[2].Value);
 
-                _Justification = int.Parse(layout2Match.Groups[1].Value);
+                _Alignment = int.Parse(layout2Match.Groups[1].Value);
 
                 int numOfLines = int.Parse(layout2Match.Groups[3].Value);
 
@@ -58,7 +102,29 @@ namespace Fasteroid {
                     Att = null;
                 }
             }
+
+            internal string Rows { get { 
+                return InnerText.Split('\n').Select((line, idx) => $@"<tspan dy='{LineHeight}em'>{line}</tspan>").Aggregate((a, b) => a + b);
+            } }
+
+
+            // svg interface
+            public override string PathStrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern
+
+            string ISVGElement.ToSVGElement(SVG _) {
+return $@"<text  
+font-family='{Font}' 
+font-size='{LineHeight}px' 
+stroke='{PathColor}' 
+transform='translate({Origin.X} {Origin.Y}) rotate({Angle})' 
+text-anchor='{CONSTANTS.TEXT.ALIGN.Horizontal(Alignment.Item1)}' 
+alignment-baseline='{CONSTANTS.TEXT.ALIGN.Vertical(Alignment.Item2)}'
+>{Rows}
+</text>";
+            }
+
         }
+
 
     }
 }

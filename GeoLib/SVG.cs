@@ -52,12 +52,14 @@ namespace Fasteroid {
 
             public override string ToString() {
                 StringBuilder svg = new();
-                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
+                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {-Height}"">");
                 svg.Append("<style> * { vector-effect: non-scaling-stroke; } </style>");
+                svg.Append($@"<g transform=""translate(0, {-Height})"">");
                 foreach (var child in Children) {
                     var childSVG = child.ToSVGElement(this);
                     if(childSVG != null) svg.Append(childSVG);
                 }
+                svg.Append("</g>");
                 svg.Append("</svg>");
                 return svg.ToString();
             }

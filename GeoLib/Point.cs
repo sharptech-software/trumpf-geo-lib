@@ -20,7 +20,7 @@ namespace Fasteroid {
 
             public Point(float x, float y) {
                 X = x;
-                Y = y;
+                Y = -y; // flip y axis to match SVG
             }
 
             public static Point operator +(Point a, Point b) {

@@ -57,7 +57,7 @@ namespace Fasteroid {
                 Center    = parent.LookupPoint(int.Parse(match.Groups[1].Value));
                 Start     = parent.LookupPoint(int.Parse(match.Groups[2].Value));
                 End       = parent.LookupPoint(int.Parse(match.Groups[3].Value));
-                Clockwise = !match.Groups[4].Success;
+                Clockwise = match.Groups[4].Success;
 
                 Radius    = Center.Distance(End);
             }
