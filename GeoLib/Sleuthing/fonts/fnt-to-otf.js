@@ -110,7 +110,7 @@ function convert( TO_LOAD, monospace = true ){
     </svg>
     `);
 
-    const fontforge = spawn('fontforge', ['-script', 'expand_strokes.py', `${TO_LOAD}.svg`, `${TO_LOAD}.otf`, CHAR_WIDTH]);
+    const fontforge = spawn('fontforge', ['-script', 'expand_strokes.py', `${TO_LOAD}.svg`, `${TO_LOAD}.woff2`, CHAR_WIDTH]);
     fontforge.stdout.on('data', (data) => {
         console.log(`${data}`);
     });
