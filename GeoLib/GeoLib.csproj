@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="Entities\" />
+    <Folder Include="Fonts\" />
   </ItemGroup>
   
    <PropertyGroup>

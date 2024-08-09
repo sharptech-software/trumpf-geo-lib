@@ -62,9 +62,9 @@ namespace Fasteroid {
 
                 var pre = await Load(filepath);
 
-                var drawing = new Drawing(pre.GetOrElse(CONSTANTS.SECTION.HEADER, "GEO has no header")[0]);
+                var drawing = new Drawing(pre.GetOrElse(ENUMS.SECTION.HEADER, "GEO has no header")[0]);
 
-                foreach(string block in pre.GetValueOrDefault(CONSTANTS.SECTION.ATT, [])) {
+                foreach(string block in pre.GetValueOrDefault(ENUMS.SECTION.ATT, [])) {
                     try {
                         (int id, Attribute att) = Attribute.FromBlock(block);
                         drawing.Atts.Add(id, att);
@@ -74,7 +74,7 @@ namespace Fasteroid {
                     }
                 }
 
-                foreach(string block in pre.GetValueOrDefault(CONSTANTS.SECTION.POINTS, [])) {
+                foreach(string block in pre.GetValueOrDefault(ENUMS.SECTION.POINTS, [])) {
                     try {
                         (int id, Point p) = Point.FromBlock(block);
                         drawing.Points.Add(id, p);
@@ -85,9 +85,9 @@ namespace Fasteroid {
                 }
 
 
-                drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.TEXT, []));
-                drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.ENTITIES, []));
-                drawing.AddEntities(pre.GetValueOrDefault(CONSTANTS.SECTION.BEND_ENTITIES, []));
+                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
+                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.ENTITIES, []));
+                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.BEND_ENTITIES, []));
 
                 return drawing;
             }

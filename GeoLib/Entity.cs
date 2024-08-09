@@ -35,7 +35,7 @@ namespace Fasteroid {
             /// <summary>
             /// If this is false after an entity instantiates, <see cref="FromBlock(string, Drawing)"/> won't return the entity.
             /// </summary>
-            protected virtual bool ShouldRender => Att?.Type != CONSTANTS.ATTRIBUTE.TEXT_SLAVE;
+            protected virtual bool ShouldRender => Att?.Type != ENUMS.ATTRIBUTE.TEXT_SLAVE;
 
             /// <summary>
             /// Base entity constructor; least descriptive.<br/>
@@ -56,8 +56,8 @@ namespace Fasteroid {
             }
 
             // svg interface defaults
-            public virtual string  PathColor         => CONSTANTS.COLORS.Lookup(Color);
-            public virtual string? PathStrokePattern => CONSTANTS.STROKES.Lookup(Stroke);
+            public virtual string  PathColor         => ENUMS.COLORS.Lookup(Color);
+            public virtual string? PathStrokePattern => ENUMS.STROKES.Lookup(Stroke);
 
             /// <summary>
             /// Creates a drawing entity from a block of entity data.
@@ -65,10 +65,10 @@ namespace Fasteroid {
             public static Entity? FromBlock(string block, Drawing parent) {
                 var entblock = block.TakeLines(1, out string type);
                 var ent = (type) switch {
-                    CONSTANTS.ENTITY.LINE   => new Line(entblock, parent),
-                    CONSTANTS.ENTITY.CIRCLE => new Circle(entblock, parent),
-                    CONSTANTS.ENTITY.ARC    => new Arc(entblock, parent),
-                    CONSTANTS.ENTITY.TEXT   => new Text(entblock, parent),
+                    ENUMS.ENTITY.LINE   => new Line(entblock, parent),
+                    ENUMS.ENTITY.CIRCLE => new Circle(entblock, parent),
+                    ENUMS.ENTITY.ARC    => new Arc(entblock, parent),
+                    ENUMS.ENTITY.TEXT   => new Text(entblock, parent),
                     _                       => new Entity(ref entblock, parent, type)
                 };
                 if(ent.ShouldRender) return ent;

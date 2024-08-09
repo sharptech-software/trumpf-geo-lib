@@ -15,4 +15,13 @@
     <ProjectReference Include="..\GeoLib\GeoLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Sleuthing\GeoTests.GEO">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Sleuthing\GeoTestsTextBoundingBoxes.geo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

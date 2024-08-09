@@ -9,7 +9,7 @@
             public const string INT = @"-?\d+";
         }
 
-        public static partial class CONSTANTS {
+        public static partial class ENUMS {
 
             public static class SECTION {
                 public const int HEADER        = 1;

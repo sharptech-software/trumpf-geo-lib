@@ -3,7 +3,7 @@
 namespace Fasteroid {
     public partial class GEOLib {
 
-        public static partial class CONSTANTS {
+        public static partial class ENUMS {
             public static class TEXT {
 
                 public static class FONTS {
@@ -22,9 +22,9 @@ namespace Fasteroid {
                 }
 
                 public static class ALIGN {
-                    public const int AFTER  = 0b001;
+                    public const int AFTER  = 0b100;
                     public const int MIDDLE = 0b010;
-                    public const int BEFORE = 0b100;
+                    public const int BEFORE = 0b001;
                     public static string Vertical(int alignment) {
                         return alignment switch {
                             AFTER  => "hanging",
@@ -66,11 +66,13 @@ namespace Fasteroid {
             public string InnerText  { get; }
 
             private readonly int _Alignment;
-            public (int, int) Alignment => ((_Alignment >> 3), (_Alignment & 0b111));
 
-            public string Font => CONSTANTS.TEXT.FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
+            public int VAlign => (_Alignment & 0b111);
+            public int HAlign => (_Alignment >> 3);
 
-            internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, CONSTANTS.ENTITY.CIRCLE) {
+            public string Font => ENUMS.TEXT.FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
+
+            internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, ENUMS.ENTITY.CIRCLE) {
 
                 textblock = textblock.TakeLines(1, out string origin)
                                      .TakeLines(1, out string layout1)
@@ -104,23 +106,43 @@ namespace Fasteroid {
             }
 
             internal string Rows { get { 
-                return InnerText.Split('\n').Select((line, idx) => $@"<tspan dy='{LineHeight}em'>{line}</tspan>").Aggregate((a, b) => a + b);
+                var lines = InnerText.Split('\n');
+                return lines.Select(
+                    (line, idx) => {
+                        return VAlign switch {
+                            ENUMS.TEXT.ALIGN.AFTER  => $"<tspan x='0' y='{idx + 1}em'>{line}</tspan>",
+                            ENUMS.TEXT.ALIGN.MIDDLE => $"<tspan x='0' y='{idx - lines.Length/2 + 0.5}em'>{line}</tspan>",
+                            ENUMS.TEXT.ALIGN.BEFORE => $"<tspan x='0' y='{idx - lines.Length + 1}em'>{line}</tspan>",
+                            _ => throw new ArgumentException("Tried to look up nonexistant alignment type")
+                        };
+                    }
+                )
+                .Aggregate( (a, b) => a + b );
             } }
 
 
             // svg interface
             public override string PathStrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern
 
-            string ISVGElement.ToSVGElement(SVG _) {
-return $@"<text  
+            string ISVGElement.ToSVGElement(SVG svg) {
+
+                if( svg.AllocateSharedFeature($"font_{Stroke}") ) { // make sure we only add the font once, and only if we need it
+                    svg.Children.Add( new SVGBase64Font(Stroke) );
+                }
+                return 
+                    
+$@"<text  
 font-family='{Font}' 
 font-size='{LineHeight}px' 
-stroke='{PathColor}' 
-transform='translate({Origin.X} {Origin.Y}) rotate({Angle})' 
-text-anchor='{CONSTANTS.TEXT.ALIGN.Horizontal(Alignment.Item1)}' 
-alignment-baseline='{CONSTANTS.TEXT.ALIGN.Vertical(Alignment.Item2)}'
->{Rows}
-</text>";
+stroke='{PathColor}'
+transform='translate({Origin.X} {Origin.Y}) rotate({-Angle})' 
+text-anchor='{ENUMS.TEXT.ALIGN.Horizontal(HAlign)}'
+>
+{Rows}
+</text>
+<circle r=""0.02"" cx=""{Origin.X}"" cy=""{Origin.Y}"" fill=""red"" />
+";
+
             }
 
         }
