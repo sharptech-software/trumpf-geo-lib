@@ -28,12 +28,12 @@ namespace Fasteroid {
             private static partial Regex Pattern();
 
             public readonly Point Center;
-            public readonly float Radius;
+            public readonly double Radius;
 
             internal Circle(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.CIRCLE) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed circle: {entblock}");
                 Center = parent.LookupPoint(int.Parse(match.Groups[1].Value));
-                Radius = float.Parse(match.Groups[2].Value);
+                Radius = double.Parse(match.Groups[2].Value);
             }
 
             // svg interface

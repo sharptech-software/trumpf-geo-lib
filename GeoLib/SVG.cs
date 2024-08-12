@@ -21,7 +21,7 @@ namespace Fasteroid {
             string PathInstructions { get; }
             string PathColor { get => "black"; }
             string? PathStrokePattern { get => null; }
-            float PathStrokeWidth { get => PathStrokePattern == null ? 1 : 2; }
+            double PathStrokeWidth { get => PathStrokePattern == null ? 1 : 2; }
 
             // Default implementation of ToSVGElement for ISVGPath
             string ISVGElement.ToSVGElement(SVG parent)
@@ -39,15 +39,15 @@ namespace Fasteroid {
 
         public class SVG {
 
-            public float Width;
-            public float Height;
+            public double Width;
+            public double Height;
 
             public readonly List<ISVGElement> Children = new();
 
             private int idAcc = 0;
             private HashSet<string> globals = new();
 
-            public SVG(float width, float height) {
+            public SVG(double width, double height) {
                 Width = width;
                 Height = height;
             }

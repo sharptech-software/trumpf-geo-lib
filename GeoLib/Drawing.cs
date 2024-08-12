@@ -19,7 +19,7 @@ namespace Fasteroid {
                 return Points.GetOrElse(idx, $"Point {idx} not found"  );
             }
 
-            public Drawing(float x, float y) {
+            public Drawing(double x, double y) {
                 Size = new Point(x, y);
             }
 
@@ -29,8 +29,8 @@ namespace Fasteroid {
                     var sizeMatch = SizePattern().MatchOrElse(size, "regex"  );
 
                     Size = new Point(
-                        float.Parse(sizeMatch.Groups[1].Value),
-                        float.Parse(sizeMatch.Groups[2].Value)
+                        double.Parse(sizeMatch.Groups[1].Value),
+                        double.Parse(sizeMatch.Groups[2].Value)
                  );
                 }
                 catch(Exception e) {
