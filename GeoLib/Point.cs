@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
 
         public partial class Point {

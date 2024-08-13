@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Fasteroid;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
         public class Attribute : ISVGElement {
             public int Type { get; }

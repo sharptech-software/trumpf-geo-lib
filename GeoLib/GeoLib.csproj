@@ -9,8 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="GEOFonts\BOLD.FNT" />
+    <None Remove="GEOFonts\ISO.FNT" />
+    <None Remove="GEOFonts\ISOPROP.FNT" />
+    <None Remove="GEOFonts\iso_dim.fnt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="GEOFonts\BOLD.FNT" />
+    <EmbeddedResource Include="GEOFonts\ISO.FNT" />
+    <EmbeddedResource Include="GEOFonts\ISOPROP.FNT" />
+    <EmbeddedResource Include="GEOFonts\iso_dim.fnt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Entities\" />
-    <Folder Include="Fonts\" />
   </ItemGroup>
   
    <PropertyGroup>

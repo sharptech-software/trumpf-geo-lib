@@ -1,4 +1,4 @@
-﻿namespace Fasteroid {
+﻿namespace SharpTech {
     public partial class GEOLib {
 
         /// <summary>

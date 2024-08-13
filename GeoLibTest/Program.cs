@@ -1,4 +1,4 @@
-﻿using Fasteroid;
+﻿using SharpTech;
 using System.Diagnostics;
 
 var test = await GEOLib.Drawing.FromFile(@"./Sleuthing/GeoTestsTextBoundingBoxes.GEO");

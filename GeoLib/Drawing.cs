@@ -1,9 +1,9 @@
 ﻿
 using Fasteroid;
+using System.Reflection;
 using System.Text.RegularExpressions;
-using static Fasteroid.GEOLib;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
         public partial class Drawing {
 
@@ -24,6 +24,14 @@ namespace Fasteroid {
             }
 
             public Drawing(string header) {
+
+                // debug: enumerate resources
+                var assembly = Assembly.GetExecutingAssembly();
+                foreach(var res in assembly.GetManifestResourceNames()) {
+                    Console.WriteLine(res);
+                }
+                
+
                 try {
                     header.SkipLines(5).TakeLines(1, out string size);
                     var sizeMatch = SizePattern().MatchOrElse(size, "regex"  );
@@ -85,7 +93,7 @@ namespace Fasteroid {
                 }
 
 
-                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
+                // drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
                 drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.ENTITIES, []));
                 drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.BEND_ENTITIES, []));
 

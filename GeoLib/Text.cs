@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using Fasteroid;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
 
         public partial class Text : Entity, ISVGElement {
@@ -105,9 +106,6 @@ namespace Fasteroid {
                     Att = null;
                 }
             }
-
-
-
 
             // svg interface
             public override string PathStrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern

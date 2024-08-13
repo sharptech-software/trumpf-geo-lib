@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
 
         [GeneratedRegex(@"^#~(\d+)(.*?)#?#~"  , RegexOptions.Singleline | RegexOptions.Multiline)]

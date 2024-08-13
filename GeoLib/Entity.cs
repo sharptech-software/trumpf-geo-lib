@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using Fasteroid;
 
-namespace Fasteroid {
+namespace SharpTech {
     public partial class GEOLib {
 
         public partial class Entity : ISVGElement {
