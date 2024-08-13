@@ -3,38 +3,34 @@
 namespace Fasteroid {
     public partial class GEOLib {
 
-        public static partial class ENUMS {
-            public static class TEXT {
-                public static class FONTS {
-                    public const int BOLD    = 131;
-                    public const int ISOPROP = 130;
-                    public const int ISODIM  = 9;
-                    public const int ISO     = 1;
-
-                    public static string Lookup(int font) => font switch {
-                        BOLD    => "BOLD",
-                        ISOPROP => "ISOPROP",
-                        ISODIM  => "iso_dim",
-                        ISO     => "ISO",
-                        _       => throw new ArgumentException("Tried to look up nonexistant font type")
-                    };
-                }
-
-                public static class ALIGN {
-                    public const int AFTER  = 0b100;
-                    public const int MIDDLE = 0b010;
-                    public const int BEFORE = 0b001;
-                }
-
-                public static class DIRECTION {
-                    public const int LEFT = 0b001;
-                    public const int DOWN = 0b100;
-                    // does a third exist?
-                }
-            }
-        }
-
         public partial class Text : Entity, ISVGElement {
+
+            public static class FONTS {
+                public const int BOLD    = 131;
+                public const int ISOPROP = 130;
+                public const int ISODIM  = 9;
+                public const int ISO     = 1;
+
+                public static string Lookup(int font) => font switch {
+                    BOLD    => "BOLD",
+                    ISOPROP => "ISOPROP",
+                    ISODIM  => "iso_dim",
+                    ISO     => "ISO",
+                    _       => throw new ArgumentException("Tried to look up nonexistant font type")
+                };
+            }
+
+            public static class ALIGN {
+                public const int AFTER  = 0b100;
+                public const int MIDDLE = 0b010;
+                public const int BEFORE = 0b001;
+            }
+
+            public static class DIRECTION {
+                public const int LEFT = 0b001;
+                public const int DOWN = 0b100;
+            }
+
 
             // weird magic numbers from TRUMPF; they make things work
             internal const double WH_SCALAR = 1.2;
@@ -72,7 +68,7 @@ namespace Fasteroid {
             
             public string InnerText   { get; }
 
-            public string Font => ENUMS.TEXT.FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
+            public string Font => FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
 
             internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, ENUMS.ENTITY.CIRCLE) {
 
@@ -121,15 +117,15 @@ namespace Fasteroid {
                 double height = (1 + LineSpacing * LH_SCALAR + LH_OFFSET);
 
                 string[] lines = WriteDir switch {
-                    ENUMS.TEXT.DIRECTION.LEFT => InnerText.Split('\n'),
-                    ENUMS.TEXT.DIRECTION.DOWN => InnerText.Select(c => c.ToString()).ToArray(),
+                    DIRECTION.LEFT => InnerText.Split('\n'),
+                    DIRECTION.DOWN => InnerText.Select(c => c.ToString()).ToArray(),
                     _ => throw new ArgumentException("Tried to look up nonexistant write direction")
                 };
 
                 double firstY = VAlign switch {
-                    ENUMS.TEXT.ALIGN.AFTER  => 1,
-                    ENUMS.TEXT.ALIGN.MIDDLE => -((lines.Length - 1)/2.0 * height) + 0.5,
-                    ENUMS.TEXT.ALIGN.BEFORE => -(lines.Length - 1) * height,
+                    ALIGN.AFTER  => 1,
+                    ALIGN.MIDDLE => -((lines.Length - 1)/2.0 * height) + 0.5,
+                    ALIGN.BEFORE => -(lines.Length - 1) * height,
                     _ => throw new ArgumentException("Tried to look up nonexistant alignment type")
                 };
 
@@ -150,9 +146,9 @@ namespace Fasteroid {
             string ISVGElement.ToSVGElement(SVG svg) {
 
                 var horizontal = HAlign switch {
-                    ENUMS.TEXT.ALIGN.AFTER  => "end",
-                    ENUMS.TEXT.ALIGN.MIDDLE => "middle",
-                    ENUMS.TEXT.ALIGN.BEFORE => "start",
+                    ALIGN.AFTER  => "end",
+                    ALIGN.MIDDLE => "middle",
+                    ALIGN.BEFORE => "start",
                     _ => throw new ArgumentException("Tried to look up nonexistant alignment type")
                 };
 
@@ -174,6 +170,11 @@ text-anchor='{horizontal}'
 ";
 
             }
+
+        }
+
+        
+        public partial class CircularText : Entity, ISVGElement {
 
         }
 

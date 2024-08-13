@@ -19,13 +19,16 @@
   <line x1="250" y1="25" x2="250" y2="75" stroke="black" stroke-width="2"/>
 
 
-  <text font-size="14px" text-anchor="end">
-    <textPath href="#uncenteredPath" startOffset="100%" alignment-baseline="hanging">
-      (-1,-1)
-    </textPath>
+  <text x="150" y="30">
+    <tspan style="white-space: pre-line;">
+     A
+     B
+     C
+     D
+    </tspan>
   </text>
 
-  <text font-size="14px" text-anchor="middle">
+  <!-- <text font-size="14px" text-anchor="middle">
     <textPath href="#centeredPath" startOffset="50%" alignment-baseline="hanging">
       (-1,0)
     </textPath>
@@ -71,7 +74,7 @@
     <textPath href="#uncenteredPath" startOffset="0%" alignment-baseline="baseline">
       (1,1)
     </textPath>
-  </text>
+  </text> -->
 
   <!-- start at the top -->
   <path id="uncenteredPath" d="M 250, 50
