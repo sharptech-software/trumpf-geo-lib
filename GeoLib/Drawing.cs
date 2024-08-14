@@ -93,7 +93,7 @@ namespace SharpTech {
                 }
 
 
-                // drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
+                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
                 drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.ENTITIES, []));
                 drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.BEND_ENTITIES, []));
 

@@ -1,13 +1,30 @@
-﻿using System.Reflection;
+﻿using System.Collections.Immutable;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using static SharpTech.GEOLib.Font.Glyph;
+using System.Xml.Linq;
 using static SharpTech.GEOLib.RE;
 using static SharpTech.GEOLib.Text;
 
 namespace SharpTech {
     public partial class GEOLib {
+
+        internal static class FONTS {
+
+            public const int BOLD    = 131;
+            public const int ISOPROP = 130;
+            public const int ISODIM  = 9;
+            public const int ISO     = 1;
+
+            public static readonly ImmutableDictionary<int, Font> Cache = new Dictionary<int, Font> {
+                { BOLD, new Font("SharpTech.GEOFonts.BOLD.FNT", 9.9, 80) },            // Where do the numbers come from?
+                { ISOPROP, new Font("SharpTech.GEOFonts.ISOPROP.FNT", -2.9, 73.5) },   // https://www.desmos.com/calculator/dulmjw0uo4
+                { ISODIM, new Font("SharpTech.GEOFonts.iso_dim.fnt", 4.6, 72.2) },     // I think TRUMPF deliberately made these difficult to reverse-engineer
+                { ISO, new Font("SharpTech.GEOFonts.ISO.FNT", 4.6, 72.2) }             // If you find a way to derive these numbers, let me know
+            }.ToImmutableDictionary();
+
+        }
 
         internal partial class Font {
 
@@ -23,80 +40,112 @@ namespace SharpTech {
             [GeneratedRegex($@"([MD]) ({INT}) ({INT})", RegexOptions.Multiline)]
             private static partial Regex InstructionPattern();
 
-            Dictionary<char, Glyph> Glyphs = [];
+            public ImmutableDictionary<char, Glyph> Glyphs;
 
-            double MagicNumber { get; }
-            double Baseline    { get; }
+            public readonly double LetterSpacing;
+            public readonly double WordSpacing;
 
+            public readonly string Name;
 
-            public Font( string resource ) {
+            internal Font( string resource, double letter, double word ) {
 
                 var ctx  = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource) ?? throw new ArgumentException($"Font '{resource}' not found");
                 var data = new StreamReader(ctx).ReadToEnd();
 
                 var headerBlock = HeaderPattern().MatchOrElse(data, "Bad font header");
 
-                MagicNumber = double.Parse(headerBlock.Groups[6].Value);
-                Baseline    = double.Parse(headerBlock.Groups[5].Value);
+                var glyphs = new Dictionary<char, Glyph>();
+
+                double headline = double.Parse(headerBlock.Groups[3].Value);
+                double baseline = double.Parse(headerBlock.Groups[4].Value);
+                double stretch  = double.Parse(headerBlock.Groups[6].Value);
+
+                LetterSpacing = letter / headline; // relative to glyphs with height of 1
+                WordSpacing   = word   / headline;
+                Name          = String.Join('.', resource.Split('.').TakeLast(2).ToArray());
 
                 foreach( Match glyphBlock in GlyphPattern().Matches(data) ) {
-                    string alias = HttpUtility.HtmlEncode( glyphBlock.Groups[1].Value );
-                    Glyphs.Add(
+                    string charname = HttpUtility.HtmlEncode( glyphBlock.Groups[1].Value );
+                    glyphs.TryAdd(
                         glyphBlock.Groups[1].Value[0],
                         new Glyph(
-                            alias,
-                            glyphBlock.Groups[2].Value,
-                            this
+                            $"{Name}.{charname}",
+                            headline,
+                            baseline,
+                            stretch,
+                            glyphBlock.Groups[2].Value
                         )
                     );
                 }
 
+                Glyphs = glyphs.ToImmutableDictionary();
+
+            }
+
+            public Glyph? Get(char c) {
+                return Glyphs.GetValueOrDefault(c);
             }
 
             internal class Glyph : ISVGElement {
 
-                private readonly string Instructions;
-                private readonly string Alias;
+                public readonly string Name;
+                public readonly ImmutableArray<SVG.PathInstruction> Instructions;
 
-                internal Glyph( string alias, string data, Font parent ) {
+                public readonly double XMax;
+                public readonly double XMin;
 
-                    Alias = alias;
+                internal Glyph( string name, double headline, double baseline, double stretch, string data ) {
 
-                    List<Instruction> instructions = new List<Instruction>();
+                    Name   = name;
+                    List<SVG.PathInstruction> instructions = new List<SVG.PathInstruction>();
+
+                    double xmin = double.MaxValue;
+                    double xmax = double.MinValue;
 
                     foreach( Match contourBlock in ContourPattern().Matches(data) ) {
-
                         foreach( Match instructionBlock in InstructionPattern().Matches(contourBlock.Groups[1].Value) ) {
-                            instructions.Add( new Instruction(
+
+                            double x = double.Parse(instructionBlock.Groups[2].Value);
+                            double y = -double.Parse(instructionBlock.Groups[3].Value); // invert for proper svg coordinates
+
+                            y -= -baseline; // move to baseline (inverted)
+
+                            x /= headline; // scale font to single unit
+                            y /= headline;
+
+                            y /= stretch; // fix aspect ratio (don't ask)
+
+                            xmin = Math.Min(xmin, x);
+                            xmax = Math.Max(xmax, x);
+
+                            instructions.Add( new SVG.PathInstruction(
                                 instructionBlock.Groups[1].Value[0] == 'M' ? 'M' : 'L',
-                                double.Parse(instructionBlock.Groups[2].Value),
-                                (double.Parse(instructionBlock.Groups[3].Value) - parent.Baseline) / parent.MagicNumber // don't ask
+                                x, y
                             ));
                         }
 
                         if( contourBlock.Groups[2].Success ) {
                             var first = instructions[0];
-                            instructions.Add( new Instruction(
+                            instructions.Add( new SVG.PathInstruction(
                                 'L',
                                 first.X,
                                 first.Y
                             ));
                         }
-
+                        Instructions = [..instructions];
                     }
 
-                    Instructions = string.Join( "", instructions.Select( i => $"{i.OP}{i.X},{i.Y}" ) );
+                    XMax = xmax;
+                    XMin = xmin;
 
-                }
-
-                internal class Instruction(char op, double x, double y) {
-                    public readonly char   OP = op;
-                    public readonly double X  = x;
-                    public readonly double Y  = y;
                 }
 
                 public string ToSVGElement(SVG svg) {
-                    return $"<refs><path d='{Instructions}' id='{Alias}'/></refs>";
+                    StringBuilder instructionCollector = new();
+                    foreach( var instruction in Instructions ) {
+                        instructionCollector.Append(instruction);
+                    }
+                    return $"<refs><path d='{instructionCollector}' id='{Name}' class='text'/></refs>";
                 }
 
             }

@@ -39,6 +39,13 @@ namespace SharpTech {
 
         public class SVG {
 
+            internal class PathInstruction(char op, double x, double y) {
+                public readonly char   OP = op;
+                public readonly double X  = x;
+                public readonly double Y  = y;
+                public override string ToString() => $"{OP}{X},{Y}";
+            }
+
             public double Width;
             public double Height;
 
@@ -54,9 +61,9 @@ namespace SharpTech {
 
             public override string ToString() {
                 StringBuilder svg = new();
-                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {-Height}"">");
-                svg.Append("<style> * { vector-effect: non-scaling-stroke; } </style>");
-                svg.Append($@"<g transform=""translate(0, {-Height})"">");
+                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
+                svg.Append("<style> * { vector-effect: non-scaling-stroke } .text { fill: none; stroke-width: 1 } </style>");
+                svg.Append($@"<g transform=""translate(0, {Height})"">");
                 for( int i = 0; i < Children.Count; i++) { // can't use enumeration because we might add more children... stupid C#
                     var child = Children[i];
                     var childSVG = child.ToSVGElement(this);

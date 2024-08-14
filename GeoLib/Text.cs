@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Fasteroid;
 
 namespace SharpTech {
@@ -6,19 +7,23 @@ namespace SharpTech {
 
         public partial class Text : Entity, ISVGElement {
 
-            public static class FONTS {
-                public const int BOLD    = 131;
-                public const int ISOPROP = 130;
-                public const int ISODIM  = 9;
-                public const int ISO     = 1;
+            internal class GlyphRef : ISVGElement {
+                public readonly Font.Glyph Glyph;
+                public readonly Point      Position;
+                public readonly string     Color;
 
-                public static string Lookup(int font) => font switch {
-                    BOLD    => "BOLD",
-                    ISOPROP => "ISOPROP",
-                    ISODIM  => "iso_dim",
-                    ISO     => "ISO",
-                    _       => throw new ArgumentException("Tried to look up nonexistant font type")
-                };
+                public GlyphRef(Font.Glyph glyph, Point position, string color) {
+                    Color    = color;
+                    Glyph    = glyph;
+                    Position = position;
+                }
+
+                public string ToSVGElement(SVG parent) {
+                    if( !parent.AllocateSharedFeature(Glyph.Name) ) { // ensure reference is available
+                        parent.Children.Add(Glyph);
+                    }
+                    return $@"<use href='#{Glyph.Name}' x='{Position.X}' y='{Position.Y}' stroke='{Color}'/>";
+                }
             }
 
             public static class ALIGN {
@@ -31,7 +36,6 @@ namespace SharpTech {
                 public const int LEFT = 0b001;
                 public const int DOWN = 0b100;
             }
-
 
             [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) ({RE.DEC})", RegexOptions.Singleline)]
             private static partial Regex Part1Pattern();
@@ -60,10 +64,9 @@ namespace SharpTech {
             public int VAlign   { get; }  public int HAlign { get; }
             public int WriteDir { get; }
 
-            
-            public string InnerText   { get; }
+            public string InnerText { get; }
 
-            public string Font => FONTS.Lookup(Stroke); // this is not a mistake, the "stroke" field is used for font type on text entities
+            internal readonly Font Font;
 
             internal Text(ReadOnlySpan<char> textblock, Drawing parent) : base(ref textblock, parent, ENUMS.ENTITY.CIRCLE) {
 
@@ -73,6 +76,8 @@ namespace SharpTech {
                                      .TakeLines(1, out string part3);
 
                 Origin = parent.LookupPoint( int.Parse(origin) );
+
+                Font = FONTS.Cache.GetOrElse(Stroke, "Text entity had unknown font");
 
                 var part1Match = Part1Pattern().MatchOrElse(part1, $"Malformed text section 1: {part1}");
                 var part2Match = Part2Pattern().MatchOrElse(part2, $"Malformed text section 2: {part2}");
@@ -96,7 +101,7 @@ namespace SharpTech {
                 {
                     int numOfLines = int.Parse(part3Match.Groups[3].Value);
                         textblock = textblock.TakeLines(numOfLines, out string text);
-                        InnerText = text;
+                        InnerText = text.Replace("\r\n","\n");
                 }
 
                 try {
@@ -107,11 +112,52 @@ namespace SharpTech {
                 }
             }
 
+            public string[] Lines { get {
+                if( WriteDir == DIRECTION.LEFT ) {
+                    return InnerText.Split('\n');
+                }
+                else {
+                    return InnerText.Select(c => $"{c}").ToArray();
+                }
+            }}
+
             // svg interface
             public override string PathStrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern
 
             string ISVGElement.ToSVGElement(SVG svg) {
-                throw new NotImplementedException("idior");
+
+                double xpos  = 0;
+                double ypos  = 0;
+
+                List<GlyphRef> textbox = new();
+
+                foreach( string line in Lines ) {
+                    foreach( char c in line ) {
+                        if( !Font.Glyphs.TryGetValue(c, out Font.Glyph? glyph) ) {
+                            xpos += Font.WordSpacing; // assume this was a space
+                            continue;
+                        }
+
+                        textbox.Add( new GlyphRef(
+                            glyph, 
+                            new Point(xpos, ypos), 
+                            ENUMS.COLORS.Lookup(Color)
+                        ));
+
+                        xpos += glyph.XMax - (Math.PI/2) * glyph.XMin + Font.LetterSpacing; // don't ask why pi/2 is here, it just is
+                    }
+                    ypos += 1; // todo: line height; for now we'll just use 1
+                    xpos = 0;
+                }
+
+                StringBuilder svgText = new();
+                svgText.Append($"<g transform='translate({Origin.X}, {Origin.Y})'>");
+                foreach( GlyphRef pg in textbox ) {
+                    svgText.Append( pg.ToSVGElement(svg) );
+                }
+                svgText.Append("</g>");
+
+                return svgText.ToString();
             }
 
         }

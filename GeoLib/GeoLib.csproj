@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entities\**" />
+    <EmbeddedResource Remove="Entities\**" />
+    <None Remove="Entities\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="GEOFonts\BOLD.FNT" />
     <None Remove="GEOFonts\ISO.FNT" />
     <None Remove="GEOFonts\ISOPROP.FNT" />
@@ -20,10 +26,6 @@
     <EmbeddedResource Include="GEOFonts\ISO.FNT" />
     <EmbeddedResource Include="GEOFonts\ISOPROP.FNT" />
     <EmbeddedResource Include="GEOFonts\iso_dim.fnt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Entities\" />
   </ItemGroup>
   
    <PropertyGroup>

@@ -49,7 +49,7 @@ function convert( TO_LOAD, monospace = true ){
                 return {
                     op: i[1],
                     x: parseInt(i[2]),
-                    y: (parseInt(i[3]) - BASELINE) / MAGIC_SCALE
+                    y: parseInt(i[3])
                 }
             })
             if(contour_block[2]){
@@ -69,57 +69,18 @@ function convert( TO_LOAD, monospace = true ){
 
     console.log("char width:", CHAR_WIDTH, "em:", UNITS_PER_EM)
 
-    // let jump   = '0/0, 0/0\n'
-    // let csv    = '';
-    // let cursor = 0;
-    // for( let glyph of glyphs ){
-    //     for( inst of glyph.path ){
-    //         if( inst.op === 'M' ){
-    //             csv += jump;
-    //         }
-    //         csv += `${inst.x + cursor}, ${inst.y}\n`
-    //     }
-    //     cursor += CHAR_WIDTH;
-    //     csv += jump
-    // }
-    // fs.writeFileSync(`${TO_LOAD}.csv`, csv); // https://www.desmos.com/calculator/uyqefbcskn
-
-
-    let svgglyphs = '';
+    let jump   = '0/0, 0\n'
+    let csv    = '';
     for( let glyph of glyphs ){
-        let path = '';
-        let char = glyph.char.replace(/[\u00A0-\u9999<>\&]/g, function(i) {
-            return '&#'+i.charCodeAt(0)+';';
-        });
         for( inst of glyph.path ){
-            let svg_inst = inst.op == 'M' ? 'M' : 'L';
-            path += `${svg_inst}${inst.x},${inst.y} `;
+            if( inst.op === 'M' ){
+                csv += jump;
+            }
+            csv += `${inst.x}, ${inst.y}\n`
         }
-        svgglyphs += `            <glyph unicode="${encodeURI(char)}" horiz-adv-x="${monospace ? CHAR_WIDTH : getGlyphWidth(glyph) + 10}" d="${path}"/>\n`
+        csv += '0/0, 1\n'
     }
-
-    fs.writeFileSync(`${TO_LOAD}.svg`, `
-    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-    <svg xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <font id="${TO_LOAD}" horiz-adv-x="${CHAR_WIDTH}">
-                <font-face font-family="${TO_LOAD}" units-per-em="${UNITS_PER_EM}" ascent="${ASCENT}"/>
-    ${svgglyphs}
-            </font>
-        </defs>
-    </svg>
-    `);
-
-    const fontforge = spawn('fontforge', ['-script', 'expand_strokes.py', `${TO_LOAD}.svg`, `${TO_LOAD}.woff2`, CHAR_WIDTH]);
-    fontforge.stdout.on('data', (data) => {
-        console.log(`${data}`);
-    });
-    fontforge.stderr.on('data', (data) => {
-        console.error(`${data}`);
-    });
-    // fontforge.on('close', (code) => {
-    //     const view = spawn('fontforge', [`${TO_LOAD}.otf`]);
-    // });
+    fs.writeFileSync(`${TO_LOAD}.csv`, csv); // https://www.desmos.com/calculator/uyqefbcskn
 
 }
 

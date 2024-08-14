@@ -16,14 +16,14 @@ namespace SharpTech {
             return value;
         }
 
-        public static V GetOrElse<K, V>(this Dictionary<K, V> self, K key, string assertion) where K : notnull {
+        public static V GetOrElse<K, V>(this IDictionary<K, V> self, K key, string assertion) where K : notnull {
             if(!self.TryGetValue(key, out V? value) ) {
                 throw new KeyNotFoundException(assertion);
             }
             return value;
         }
 
-        public static V GetValueOrDefault<K, V>(this Dictionary<K, V> self, K key, V defaultValue) where K : notnull {
+        public static V GetValueOrDefault<K, V>(this IDictionary<K, V> self, K key, V defaultValue) where K : notnull {
             if (!self.TryGetValue(key, out V? value) ) {
                 return defaultValue;
             }
