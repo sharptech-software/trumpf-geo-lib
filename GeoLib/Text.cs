@@ -128,14 +128,15 @@ namespace SharpTech {
 
             string ISVGElement.ToSVGElement(SVG svg) {
 
-                double xpos  = 0;
-                double ypos  = 0;
+                double xpos   = 0;
+                double ypos   = 1.5;
+                double width  = 0;
+
+                double linespacing = (LineSpacing) / LineHeight + 2; // font space units
 
                 List<GlyphRef> textbox = new();
 
                 foreach( string line in Lines ) {
-                    ypos += 1; // todo: line height; for now we'll just use 1
-                    xpos = 0;
                     foreach( char c in line ) {
                         if( !Font.Glyphs.TryGetValue(c, out Font.Glyph? glyph) ) {
                             xpos += Font.WordSpacing; // assume this was a space
@@ -148,14 +149,31 @@ namespace SharpTech {
                             ENUMS.COLORS.Lookup(Color)
                         ));
 
-                        xpos += glyph.XMax + (Math.PI/2) * glyph.XMin + Font.LetterSpacing; // don't ask why pi/2 is here, it just is
+                        xpos += glyph.XMax + (Math.PI/2.0) * glyph.XMin + Font.LetterSpacing; // don't ask why pi/2 is here, it just is
+                        width = Math.Max(width, xpos);
                     }
-                }
 
-                
+                    ypos += linespacing;
+                    xpos = 0;
+                }
+                ypos -= linespacing; // fixes off-by-1 error
+
+                double horizOffset = HAlign switch {
+                    ALIGN.AFTER  => -width,
+                    ALIGN.MIDDLE => -width / 2.0,
+                    ALIGN.BEFORE => 0,
+                    _            => throw new NotImplementedException("Unknown horizontal alignment")
+                };
+
+                double vertOffset = VAlign switch {
+                    ALIGN.AFTER  => 2.5 - ypos,
+                    ALIGN.MIDDLE => 1.0 - ypos / 2.0,
+                    ALIGN.BEFORE => -0.5,
+                    _            => throw new NotImplementedException("Unknown vertical alignment")
+                };
 
                 StringBuilder svgText = new();
-                svgText.Append($"<g x='0' y='0' transform='translate({Origin.X}, {Origin.Y}) scale({LineHeight})'>");
+                svgText.Append($"<g x='0' y='0' transform='translate({Origin.X}, {Origin.Y}) rotate({-Angle}) scale({LineHeight * WHRatio}, {LineHeight}) skewX({-Inclination}) translate({horizOffset}, {vertOffset})'>");
                 foreach( GlyphRef pg in textbox ) {
                     svgText.Append( pg.ToSVGElement(svg) );
                 }
