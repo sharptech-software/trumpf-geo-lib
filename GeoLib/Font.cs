@@ -56,13 +56,20 @@ namespace SharpTech {
 
                 var glyphs = new Dictionary<char, Glyph>();
 
-                double headline = double.Parse(headerBlock.Groups[3].Value);
+                double headline = double.Parse(headerBlock.Groups[2].Value);
                 double baseline = double.Parse(headerBlock.Groups[4].Value);
                 double stretch  = double.Parse(headerBlock.Groups[6].Value);
 
                 LetterSpacing = letter / headline; // relative to glyphs with height of 1
                 WordSpacing   = word   / headline;
                 Name          = String.Join('.', resource.Split('.').TakeLast(2).ToArray());
+
+                Console.WriteLine($"headline: {headline}");
+                Console.WriteLine($"baseline: {baseline}");
+                Console.WriteLine($"stretch: {stretch}");
+
+                Console.WriteLine($"letter spacing: {LetterSpacing}");
+                Console.WriteLine($"word spacing: {WordSpacing}");
 
                 foreach( Match glyphBlock in GlyphPattern().Matches(data) ) {
                     string charname = HttpUtility.HtmlEncode( glyphBlock.Groups[1].Value );
@@ -108,7 +115,7 @@ namespace SharpTech {
                             double x = double.Parse(instructionBlock.Groups[2].Value);
                             double y = -double.Parse(instructionBlock.Groups[3].Value); // invert for proper svg coordinates
 
-                            y -= -baseline; // move to baseline (inverted)
+                            y -= baseline; // move to baseline (inverted)
 
                             x /= headline; // scale font to single unit
                             y /= headline;
@@ -137,6 +144,8 @@ namespace SharpTech {
 
                     XMax = xmax;
                     XMin = xmin;
+
+                    Console.WriteLine($"glyph {name} spans {xmin} -> {xmax}");
 
                 }
 

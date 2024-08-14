@@ -43,7 +43,7 @@ namespace SharpTech {
                 public readonly char   OP = op;
                 public readonly double X  = x;
                 public readonly double Y  = y;
-                public override string ToString() => $"{OP}{X},{Y}";
+                public override string ToString() => $"{OP} {X:F5}, {Y:F5} ";
             }
 
             public double Width;

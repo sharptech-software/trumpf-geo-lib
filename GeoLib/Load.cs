@@ -14,7 +14,7 @@ namespace SharpTech {
             // block type -> section of blocks -> each block in the section is a string
             var geo = new Dictionary<int, List<string>>();
             
-            string data = (await File.ReadAllTextAsync(path)).Replace("\r\n"  , "\n"  );
+            string data = (await File.ReadAllTextAsync(path)).Replace("\r\n", "\n");
 
             var sectionMatches = SectionPattern().Matches(data);
 

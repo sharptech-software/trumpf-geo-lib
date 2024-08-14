@@ -19,7 +19,9 @@ namespace SharpTech {
                 }
 
                 public string ToSVGElement(SVG parent) {
-                    if( !parent.AllocateSharedFeature(Glyph.Name) ) { // ensure reference is available
+                    Console.WriteLine($"Encountered glyph: {Glyph.Name}");
+                    if( parent.AllocateSharedFeature(Glyph.Name) ) { // ensure reference is available
+                        Console.WriteLine($"Added glyph: {Glyph.Name}");
                         parent.Children.Add(Glyph);
                     }
                     return $@"<use href='#{Glyph.Name}' x='{Position.X}' y='{Position.Y}' stroke='{Color}'/>";
@@ -132,6 +134,8 @@ namespace SharpTech {
                 List<GlyphRef> textbox = new();
 
                 foreach( string line in Lines ) {
+                    ypos += 1; // todo: line height; for now we'll just use 1
+                    xpos = 0;
                     foreach( char c in line ) {
                         if( !Font.Glyphs.TryGetValue(c, out Font.Glyph? glyph) ) {
                             xpos += Font.WordSpacing; // assume this was a space
@@ -144,14 +148,14 @@ namespace SharpTech {
                             ENUMS.COLORS.Lookup(Color)
                         ));
 
-                        xpos += glyph.XMax - (Math.PI/2) * glyph.XMin + Font.LetterSpacing; // don't ask why pi/2 is here, it just is
+                        xpos += glyph.XMax + (Math.PI/2) * glyph.XMin + Font.LetterSpacing; // don't ask why pi/2 is here, it just is
                     }
-                    ypos += 1; // todo: line height; for now we'll just use 1
-                    xpos = 0;
                 }
 
+                
+
                 StringBuilder svgText = new();
-                svgText.Append($"<g transform='translate({Origin.X}, {Origin.Y})'>");
+                svgText.Append($"<g x='0' y='0' transform='translate({Origin.X}, {Origin.Y}) scale({LineHeight})'>");
                 foreach( GlyphRef pg in textbox ) {
                     svgText.Append( pg.ToSVGElement(svg) );
                 }

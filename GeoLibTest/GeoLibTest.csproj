@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Sleuthing\BoundingBoxes2.GEO">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Sleuthing\BoundingBoxes3.GEO">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Sleuthing\GeoTests.GEO">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
