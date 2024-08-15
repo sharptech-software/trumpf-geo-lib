@@ -9,21 +9,51 @@ using System.Threading.Tasks;
 namespace SharpTech {
     public partial class GEOLib {
 
+        /// <summary>
+        /// Represents an SVG element.
+        /// </summary>
         public interface ISVGElement {
+
             /// <summary>
-            /// Provides the parent SVG so the developer can allocate unique IDs for hrefs.
+            /// Given an <see cref="SVG"/> parent container, returns this child as a string.<br/>
+            /// The parent is passed so children can add shared references as needed.
             /// </summary>
-            /// <returns>svg code</returns>
+            /// <returns>An svg element</returns>
             string? ToSVGElement(SVG parent) => null;
+
         }
 
+        /// <summary>
+        /// Represents an SVG path element.
+        /// </summary>
         public interface ISVGPath : ISVGElement {
+
+            /// <summary>
+            /// The 'd' attribute of the path.
+            /// <code>
+            /// &lt;path d="<see cref="PathInstructions">this</see>" .../&gt;
+            /// </code>
+            /// </summary>
             string PathInstructions { get; }
+
+            /// <summary>
+            /// Stroke color, as HTML color string.
+            /// </summary>
             string PathColor { get => "black"; }
+
+            /// <summary>
+            /// The stroke-dasharray attribute of the path, or null if nothing special.
+            /// <code>
+            /// &lt;path stroke-dasharray="<see cref="PathInstructions">this</see>" .../&gt;
+            /// </code>
+            /// </summary>
             string? PathStrokePattern { get => null; }
+
+            /// <summary>
+            /// Stroke width.
+            /// </summary>
             double PathStrokeWidth { get => PathStrokePattern == null ? 1 : 2; }
 
-            // Default implementation of ToSVGElement for ISVGPath
             string ISVGElement.ToSVGElement(SVG parent)
             {
                 StringBuilder svg = new();
@@ -35,8 +65,12 @@ namespace SharpTech {
                 svg.Append("/>");
                 return svg.ToString();
             }
+
         }
 
+        /// <summary>
+        /// A container with a width and height containing <see cref="ISVGElement"/>s.
+        /// </summary>
         public class SVG {
 
             internal class PathInstruction(char op, double x, double y) {
@@ -46,19 +80,32 @@ namespace SharpTech {
                 public override string ToString() => $"{OP} {X:F5}, {Y:F5} ";
             }
 
+            /// <summary>
+            /// SVG width.
+            /// </summary>
             public double Width;
+
+            /// <summary>
+            /// SVG height.
+            /// </summary>
             public double Height;
 
+            /// <summary>
+            /// The children of this SVG.
+            /// </summary>
             public readonly List<ISVGElement> Children = new();
 
             private int idAcc = 0;
             private HashSet<string> globals = new();
 
-            public SVG(double width, double height) {
+            internal SVG(double width, double height) {
                 Width = width;
                 Height = height;
             }
 
+            /// <summary>
+            /// Returns this SVG as a string.
+            /// </summary>
             public override string ToString() {
                 StringBuilder svg = new();
                 svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
@@ -85,8 +132,8 @@ namespace SharpTech {
             /// <summary>
             /// Helpful to ensure you create only one of something.
             /// </summary>
-            /// <param name="id"></param>
-            /// <returns>false if it already exists, true if it was created</returns>
+            /// <param name="feature"></param>
+            /// <returns>True if new, false if it exists already</returns>
             public bool AllocateSharedFeature(string feature) {
                 if( globals.Contains(feature) ) return false;
                 globals.Add(feature);

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿#pragma warning disable 1591
+using System.Text.RegularExpressions;
 
 namespace SharpTech {
     public partial class GEOLib {
@@ -8,8 +9,8 @@ namespace SharpTech {
             [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly Point Start;
-            public readonly Point End;
+            public Point Start;
+            public Point End;
 
             internal Line(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.LINE) { 
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed line: {entblock}");
@@ -18,7 +19,7 @@ namespace SharpTech {
             }
 
             // svg interface
-            public string PathInstructions => $"M {Start.X} {Start.Y} L {End.X} {End.Y}";
+            string ISVGPath.PathInstructions => $"M {Start.X} {Start.Y} L {End.X} {End.Y}";
         }
 
 
@@ -27,8 +28,8 @@ namespace SharpTech {
             [GeneratedRegex($@"^({RE.INT})\r?\n({RE.DEC})$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly Point Center;
-            public readonly double Radius;
+            public Point Center;
+            public double Radius;
 
             internal Circle(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.CIRCLE) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed circle: {entblock}");
@@ -37,7 +38,7 @@ namespace SharpTech {
             }
 
             // svg interface
-            public string PathInstructions => $"M {Center.X} {Center.Y - Radius} a {Radius} {Radius} 180 1 0 0 {2 * Radius}\na {Radius} {Radius} 180 1 0 0 {-2 * Radius}";
+            string ISVGPath.PathInstructions => $"M {Center.X} {Center.Y - Radius} a {Radius} {Radius} 180 1 0 0 {2 * Radius}\na {Radius} {Radius} 180 1 0 0 {-2 * Radius}";
         }
 
         public partial class Arc : Entity, ISVGPath {
@@ -45,12 +46,12 @@ namespace SharpTech {
             [GeneratedRegex($@"({RE.INT}) ({RE.INT}) ({RE.INT})(\r?\n-1)?$", RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly Point Start;
-            public readonly Point Center;
-            public readonly Point End;
-            public readonly bool  Clockwise;
+            public Point Start;
+            public Point Center;
+            public Point End;
+            public bool  Clockwise;
 
-            public readonly double Radius;
+            public double Radius;
 
             internal Arc(ReadOnlySpan<char> entblock, Drawing parent) : base(ref entblock, parent, ENUMS.ENTITY.ARC) {
                 var match = Pattern().MatchOrElse(entblock.ToString(), $"Malformed arc: {entblock}");
@@ -63,7 +64,7 @@ namespace SharpTech {
             }
 
             // svg interface
-            public string PathInstructions => $"M {Start.X} {Start.Y} A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
+            string ISVGPath.PathInstructions => $"M {Start.X} {Start.Y} A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
 
         }
 

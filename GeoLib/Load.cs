@@ -1,6 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace SharpTech {
+
+    /// <summary>
+    /// Library for parsing TRUMPF's proprietary GEO file format.
+    /// </summary>
     public partial class GEOLib {
 
         [GeneratedRegex(@"^#~(\d+)(.*?)#?#~"  , RegexOptions.Singleline | RegexOptions.Multiline)]

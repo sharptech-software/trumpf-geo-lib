@@ -1,14 +1,19 @@
-﻿namespace SharpTech {
+﻿#pragma warning disable 1591
+
+namespace SharpTech {
     public partial class GEOLib {
 
         /// <summary>
         /// RE - Regular Expressions
         /// </summary>
-        public static class RE {
+        internal static class RE {
             public const string DEC = @"-?\d+(?>\.\d+)?";
             public const string INT = @"-?\d+";
         }
 
+        /// <summary>
+        /// Various magic identifiers found in GEO files.
+        /// </summary>
         public static partial class ENUMS {
 
             public static class SECTION {
@@ -44,6 +49,11 @@
                 public const int BLUE    = 6;
                 public const int MAGENTA = 7;
 
+                /// <summary>
+                /// Translates an enum from this class to a hex code.
+                /// </summary>
+                /// <param name="color"></param>
+                /// <returns>Hex code</returns>
                 public static string Lookup(int color) {
                     return color switch {
                         RED     => "#f00",
@@ -63,6 +73,11 @@
                 public const int DOT      = 2;
                 public const int DASHDOT  = 3;
 
+                /// <summary>
+                /// Translates an enum from this class to a stroke pattern, for use in SVG.
+                /// </summary>
+                /// <param name="stroke"></param>
+                /// <returns>Stroke pattern (or null)</returns>
                 public static string? Lookup(int stroke) {
                     return stroke switch {
                         DASH    => "5,5",

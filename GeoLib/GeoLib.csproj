@@ -37,6 +37,15 @@
     <Company></Company>
   </PropertyGroup>
   
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  
+  
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+     <Optimize>False</Optimize>
+   </PropertyGroup>
+  
    <ItemGroup>
      <PackageReference Include="Fasteroid.StrinQ" Version="1.0.2" />
    </ItemGroup>

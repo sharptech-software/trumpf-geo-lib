@@ -2,7 +2,14 @@
 
 namespace SharpTech {
     public partial class GEOLib {
+
+        /// <summary>
+        /// An attribute of an <see cref="Entity"/>
+        /// </summary>
         public class Attribute : ISVGElement {
+
+            /// <summary>
+            /// See <see cref="ENUMS.ATTRIBUTE"/>.
             public int Type { get; }
 
             /// <summary>
@@ -19,7 +26,7 @@ namespace SharpTech {
             /// </summary>
             /// <param name="block"></param>
             /// <returns></returns>
-            public static (int, Attribute) FromBlock(string block) {
+            internal static (int, Attribute) FromBlock(string block) {
                 var attdata = block.SkipLines(1) // "ATT"
                                    .TakeLines(1, out string strid)
                                    .TakeLines(1, out string strtype);

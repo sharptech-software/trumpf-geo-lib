@@ -4,16 +4,41 @@ using Fasteroid;
 namespace SharpTech {
     public partial class GEOLib {
 
+        /// <summary>
+        /// A GEO drawing entity.
+        /// </summary>
         public partial class Entity : ISVGElement {
 
             [GeneratedRegex($@"^({RE.INT}) ({RE.INT})$", RegexOptions.Singleline)]
             private static partial Regex AppearancePattern();
 
+            /// <summary>
+            /// The drawing this entity belongs to.
+            /// </summary>
             public readonly Drawing Parent;
-            public virtual string     Type   { get; }
-            public virtual int        Color  { get; }
-            public virtual int        Stroke { get; }
-            public virtual Attribute? Att    { get; } // todo: can multiple attributes be attached to an entity?
+
+            /// <summary>
+            /// See <see cref="ENUMS.ENTITY"/>.
+            /// </summary>
+            public virtual string Type { get; }
+
+            /// <summary>
+            /// See <see cref="ENUMS.COLORS"/>.
+            /// </summary>
+            public virtual int Color  { get; }
+
+            /// <summary>
+            /// See <see cref="ENUMS.STROKES"/>.
+            /// </summary>
+            public virtual int Stroke { get; }
+
+            /// <summary>
+            /// This entity's <see cref="GEOLib.Attribute"/>, if it has one.
+            /// </summary>
+            /// <remarks>
+            /// If multiple attributes is a thing (which I have yet to witness if so), this will only return the first one.<br/>
+            /// </remarks>
+            public virtual Attribute? Attribute { get; }
 
             /// <summary>
             /// Extracts an attribute from entity data (if it exists) and self-modifies the data to remove the attribute reference.<br/>
@@ -28,7 +53,7 @@ namespace SharpTech {
 
                 if(int.TryParse(strAttRef, out int attRef) && int.TryParse(strIdk, out int _)) {
                     entdata = attRemoved;
-                    return Parent.Atts.GetOrElse(attRef, $"Attribute {attRef} not found"  );
+                    return Parent.Attributes.GetOrElse(attRef, $"Attribute {attRef} not found"  );
                 }
                 return null;
             }
@@ -43,7 +68,9 @@ namespace SharpTech {
             /// Probably shouldn't be used directly.
             /// </summary>
             /// <param name="block">An entity block from the GEO file, which has had its type stripped via <see cref="FromBlock(string, Drawing)"/></param>
-            protected Entity(ref ReadOnlySpan<char> block, Drawing parent, string type) {
+            /// <param name="parent">The drawing this entity belongs to</param>
+            /// <param name="type">The type of entity</param>
+            protected internal Entity(ref ReadOnlySpan<char> block, Drawing parent, string type) {
                 Parent  = parent;
                 block   = block.TakeLines(1, out string appearance);
 
@@ -53,17 +80,19 @@ namespace SharpTech {
                 Color  = int.Parse(appearanceMatch.Groups[1].Value);
                 Stroke = int.Parse(appearanceMatch.Groups[2].Value);
 
-                Att = GetAttFromData(ref block);
+                Attribute = GetAttFromData(ref block);
             }
 
-            // svg interface defaults
+            /// <inheritdoc cref="ISVGPath.PathColor"/>
             public virtual string  PathColor         => ENUMS.COLORS.Lookup(Color);
+
+            /// <inheritdoc cref="ISVGPath.PathStrokePattern"/>
             public virtual string? PathStrokePattern => ENUMS.STROKES.Lookup(Stroke);
 
             /// <summary>
             /// Creates a drawing entity from a block of entity data.
             /// </summary>
-            public static Entity FromBlock(string block, Drawing parent) {
+            internal static Entity FromBlock(string block, Drawing parent) {
                 var entblock = block.TakeLines(1, out string type);
                 return (type) switch {
                     ENUMS.ENTITY.LINE   => new Line(entblock, parent),

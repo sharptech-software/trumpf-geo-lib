@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace SharpTech {
     public partial class GEOLib {
 
-        public partial class Point {
+        /// <summary>
+        /// A 2D point class with a few vector utility operations.
+        /// </summary>
+        public partial class Point(double x, double y) {
 
+            /// <summary>
+            /// Equivalent to (0, 0)
+            /// </summary>
             public readonly static Point ZERO = new Point(0,0);
 
             [GeneratedRegex($@"({RE.INT})\r?\n({RE.DEC}) ({RE.DEC}) {RE.DEC}"  , RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly double X;
-            public readonly double Y;
-
-            public Point(double x, double y) {
-                X = x;
-                Y = y;
-            }
+            public readonly double X = x;
+            public readonly double Y = y;
 
             public static Point operator +(Point a, Point b) {
                 return new Point(a.X + b.X, a.Y + b.Y);
@@ -31,20 +27,24 @@ namespace SharpTech {
                 return new Point(a.X - b.X, a.Y - b.Y);
             }
 
-            public double Dot(Point other) {
-                return X * other.X + Y * other.Y;
-            }
-
+            /// <summary>
+            /// Distance between two points.
+            /// </summary>
+            /// <param name="other"></param>
+            /// <returns></returns>
             public double Distance(Point other) {
                 return Math.Sqrt(Math.Pow(other.X - X, 2) + Math.Pow(other.Y - Y, 2));
             }
 
+            /// <summary>
+            /// Magnitude of this point.
+            /// </summary>
+            /// <returns></returns>
             public double Length() {
                 return ZERO.Distance(this); // lol
             }
 
-            public static (int, Point) FromBlock(string block) {
-
+            internal static (int, Point) FromBlock(string block) {
                 var match = Pattern().MatchOrElse(block, $"Malformed point: {block}"  );
 
                 return (
@@ -53,7 +53,7 @@ namespace SharpTech {
                         double.Parse(match.Groups[2].Value),
                         -double.Parse(match.Groups[3].Value) // invert y to match SVG coordinate system
                     )
-             );
+                );
             }
 
         }

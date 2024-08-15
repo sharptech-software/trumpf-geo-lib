@@ -64,13 +64,6 @@ namespace SharpTech {
                 WordSpacing   = word   / headline;
                 Name          = String.Join('.', resource.Split('.').TakeLast(2).ToArray());
 
-                Console.WriteLine($"headline: {headline}");
-                Console.WriteLine($"baseline: {baseline}");
-                Console.WriteLine($"stretch: {stretch}");
-
-                Console.WriteLine($"letter spacing: {LetterSpacing}");
-                Console.WriteLine($"word spacing: {WordSpacing}");
-
                 foreach( Match glyphBlock in GlyphPattern().Matches(data) ) {
                     string charname = HttpUtility.HtmlEncode( glyphBlock.Groups[1].Value );
                     glyphs.TryAdd(
