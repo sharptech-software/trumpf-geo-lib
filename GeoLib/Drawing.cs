@@ -49,12 +49,12 @@ namespace SharpTech {
             /// <summary>
             /// Width of the drawing.
             /// </summary>
-            public readonly double Width = width;
+            public double Width = width;
 
             /// <summary>
             /// Height of the drawing.
             /// </summary>
-            public readonly double Height = height;
+            public double Height = height;
 
             /// <summary>
             /// Converts the drawing to SVG.
