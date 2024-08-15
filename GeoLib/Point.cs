@@ -17,8 +17,8 @@ namespace SharpTech {
             [GeneratedRegex($@"({RE.INT})\r?\n({RE.DEC}) ({RE.DEC}) {RE.DEC}"  , RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex Pattern();
 
-            public readonly double X = x;
-            public readonly double Y = y;
+            public double X = x;
+            public double Y = y;
 
             public static Point operator +(Point a, Point b) {
                 return new Point(a.X + b.X, a.Y + b.Y);
