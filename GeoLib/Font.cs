@@ -138,8 +138,6 @@ namespace SharpTech {
                     XMax = xmax;
                     XMin = xmin;
 
-                    Console.WriteLine($"glyph {name} spans {xmin} -> {xmax}");
-
                 }
 
                 public string ToSVGElement(SVG svg) {

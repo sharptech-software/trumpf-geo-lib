@@ -10,6 +10,7 @@ namespace SharpTech {
 
             /// <summary>
             /// See <see cref="ENUMS.ATTRIBUTE"/>.
+            /// </summary>
             public int Type { get; }
 
             /// <summary>

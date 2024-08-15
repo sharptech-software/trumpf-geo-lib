@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿#pragma warning disable 1591
+using System.Text.RegularExpressions;
 
 namespace SharpTech {
     public partial class GEOLib {
