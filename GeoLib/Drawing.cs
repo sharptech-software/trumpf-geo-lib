@@ -69,47 +69,67 @@ namespace SharpTech {
             }
 
             /// <summary>
-            /// Creates a <see cref="Drawing"/> based on the provided GEO file.
+            /// Creates a <see cref="Drawing"/> based on the provided GEO file path.
             /// </summary>
             /// <param name="filepath">File to load</param>
             /// <returns>The drawing</returns>
             public static async Task< Drawing > FromFile(string filepath) {
+                return Drawing.FromCommon(Load(await File.ReadAllTextAsync(filepath)));
+            }
 
-                var pre = await Load(filepath);
+            /// <summary>
+            /// Creates a <see cref="Drawing"/> based on the provided GEO file bytes.
+            /// </summary>
+            /// <param name="bytes"></param>
+            /// <returns>the drawing</returns>
+            public static Drawing FromFileBytes(byte[] bytes)
+            {
+                return Drawing.FromCommon(Load(System.Text.Encoding.UTF8.GetString(bytes)));
+            }
 
+            internal static Drawing FromCommon(Dictionary<int, List<string>> pre)
+            {
                 Drawing drawing;
 
-                try {
+                try
+                {
                     string header = pre.GetOrElse(ENUMS.SECTION.HEADER, "GEO has no header")[0];
 
                     header.SkipLines(5).TakeLines(1, out string size);
-                        var sizeMatch = SizePattern().MatchOrElse(size, "regex");
-                        double width = double.Parse(sizeMatch.Groups[1].Value);
-                        double height = double.Parse(sizeMatch.Groups[2].Value);
+                    var sizeMatch = SizePattern().MatchOrElse(size, "regex");
+                    double width = double.Parse(sizeMatch.Groups[1].Value);
+                    double height = double.Parse(sizeMatch.Groups[2].Value);
 
                     drawing = new Drawing(width, height);
                 }
-                catch(Exception e ) {
+                catch (Exception e)
+                {
                     throw new InvalidDataException("GEO header was malformed", e);
                 }
 
 
-                foreach(string block in pre.GetValueOrDefault(ENUMS.SECTION.ATT, [])) {
-                    try {
+                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.ATT, []))
+                {
+                    try
+                    {
                         (int id, Attribute att) = Attribute.FromBlock(block);
                         drawing.Attributes.Add(id, att);
                     }
-                    catch(Exception e) {
+                    catch (Exception e)
+                    {
                         Console.Error.WriteLine($"Error parsing attribute: {e.Message}");
                     }
                 }
 
-                foreach(string block in pre.GetValueOrDefault(ENUMS.SECTION.POINTS, [])) {
-                    try {
+                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.POINTS, []))
+                {
+                    try
+                    {
                         (int id, Point p) = Point.FromBlock(block);
                         drawing.Points.Add(id, p);
                     }
-                    catch(Exception e) {
+                    catch (Exception e)
+                    {
                         Console.Error.WriteLine($"Error parsing point: {e.Message}");
                     }
                 }
@@ -121,6 +141,7 @@ namespace SharpTech {
 
                 return drawing;
             }
+
 
         }
 
