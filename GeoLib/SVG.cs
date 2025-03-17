@@ -9,6 +9,17 @@ using System.Threading.Tasks;
 namespace SharpTech {
     public partial class GEOLib {
 
+        internal static string CreatePath(string Path, string StrokeColor, string FillColor, double StrokeWidth, string? StrokePattern) {
+            StringBuilder svg = new();
+                svg.Append($@"<path d=""{Path}"" fill=""{FillColor}"" stroke=""{StrokeColor}"" stroke-width=""{StrokeWidth}"" stroke-linecap=""round""");
+                if (StrokePattern != null)
+                {
+                    svg.Append($@" stroke-dasharray=""{StrokePattern}""");
+                }
+                svg.Append("/>");
+            return svg.ToString();
+        }
+
         /// <summary>
         /// Represents an SVG element.
         /// </summary>
@@ -26,44 +37,45 @@ namespace SharpTech {
         /// <summary>
         /// Represents an SVG path element.
         /// </summary>
-        public interface ISVGPath : ISVGElement {
+        public interface IStroke : ISVGElement {
 
             /// <summary>
-            /// The 'd' attribute of the path.
-            /// <code>
-            /// &lt;path d="<see cref="PathInstructions">this</see>" .../&gt;
-            /// </code>
+            /// The 'M' part of the path, if it were the first command.
             /// </summary>
-            string PathInstructions { get; }
+            string StrokeStart { get; }
+
+            /// <summary>
+            /// Everything after the 'M' part of the path.
+            /// </summary>
+            string StrokeBody { get; }
 
             /// <summary>
             /// Stroke color, as HTML color string.
             /// </summary>
-            string PathColor { get => "black"; }
+            string StrokeColor { get => "black"; }
 
             /// <summary>
             /// The stroke-dasharray attribute of the path, or null if nothing special.
             /// <code>
-            /// &lt;path stroke-dasharray="<see cref="PathInstructions">this</see>" .../&gt;
+            /// &lt;path stroke-dasharray="<see cref="StrokeBody">this</see>" .../&gt;
             /// </code>
             /// </summary>
-            string? PathStrokePattern { get => null; }
+            string? StrokePattern { get => null; }
 
             /// <summary>
             /// Stroke width.
             /// </summary>
-            double PathStrokeWidth { get => PathStrokePattern == null ? 1 : 2; }
+            double StrokeWidth { get => StrokePattern == null ? 1 : 2; }
 
             string ISVGElement.ToSVGElement(SVG parent)
             {
-                StringBuilder svg = new();
-                svg.Append($@"<path d=""{PathInstructions}"" fill=""none"" stroke=""{PathColor}"" stroke-width=""{PathStrokeWidth}"" stroke-linecap=""round""");
-                if (PathStrokePattern != null)
-                {
-                    svg.Append($@" stroke-dasharray=""{PathStrokePattern}""");
-                }
-                svg.Append("/>");
-                return svg.ToString();
+                return CreatePath(
+                    Path:          StrokeStart + StrokeBody,
+                    StrokeColor:   StrokeColor,
+                    FillColor:     "none",
+                    StrokeWidth:   StrokeWidth,
+                    StrokePattern: StrokePattern
+                );
             }
 
         }
@@ -109,7 +121,7 @@ namespace SharpTech {
             public override string ToString() {
                 StringBuilder svg = new();
                 svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
-                svg.Append("<style> * { vector-effect: non-scaling-stroke } .text { fill: none; stroke-width: 1 } </style>");
+                svg.Append("<style> * { vector-effect: non-scaling-stroke; fill-rule: evenodd; } .text { fill: none; stroke-width: 1; } </style>");
                 svg.Append($@"<g transform=""translate(0, {Height})"">");
                 for( int i = 0; i < Children.Count; i++) { // can't use enumeration because we might add more children... stupid C#
                     var child = Children[i];

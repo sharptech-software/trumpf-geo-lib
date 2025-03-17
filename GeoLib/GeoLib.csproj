@@ -30,10 +30,10 @@
   
    <PropertyGroup>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-    <Version>1.0.3</Version>
+    <Version>2.0.0</Version>
     <Authors>Fasteroid1150</Authors>
     <RepositoryUrl>https://github.com/sharptech-software/trumpf-geo-lib/</RepositoryUrl>
-    <PackageTags>CAD, Trumpf, TruTops</PackageTags>
+    <PackageTags>CAD, TRUMPF, TruTops, GEO, SVG, Vector</PackageTags>
     <Company></Company>
   </PropertyGroup>
   

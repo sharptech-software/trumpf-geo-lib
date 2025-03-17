@@ -13,10 +13,10 @@ namespace SharpTech {
         [GeneratedRegex(@"(?>\n)?(.*?)(?>\n)\|~"  , RegexOptions.Singleline | RegexOptions.Multiline)]
         private static partial Regex BlockPattern();
 
-        internal static Dictionary<int, List<string>> Load(string fileContentsString)
+        internal static Dictionary<int, List< List<string> >> Load(string fileContentsString)
         {
-            // block type -> section of blocks -> each block in the section is a string
-            var geo = new Dictionary<int, List<string>>();
+            // section type -> list of all times it was declared -> each block in each group is a string
+            var geo = new Dictionary<int, List< List<string> >>();
 
             string data = (fileContentsString).Replace("\r\n", "\n");
 
@@ -28,20 +28,21 @@ namespace SharpTech {
 
                 var blockMatches = BlockPattern().Matches(sectionMatch.Groups[2].Value);
 
+                var group = new List<string>();
+
                 if (blockMatches.Count == 0)
                 {
-                    section.Add(sectionMatch.Groups[2].Value);
-                    continue;
+                    group.Add(sectionMatch.Groups[2].Value);
+                }
+                else foreach (Match blockMatch in blockMatches)
+                {
+                    group.Add(blockMatch.Groups[1].Value);
                 }
 
-                foreach (Match blockMatch in blockMatches)
-                {
-                    section.Add(blockMatch.Groups[1].Value);
-                }
+                section.Add(group);
             }
 
             return geo;
-
         }
 
     }

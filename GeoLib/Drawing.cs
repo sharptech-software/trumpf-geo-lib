@@ -1,9 +1,11 @@
 ﻿
 using Fasteroid;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace SharpTech {
     public partial class GEOLib {
+
 
         /// <summary>
         /// Creates a new, empty drawing
@@ -15,15 +17,19 @@ namespace SharpTech {
             [GeneratedRegex($@"^({RE.DEC}) ({RE.DEC}) {RE.DEC}"  , RegexOptions.Singleline | RegexOptions.Multiline)]
             private static partial Regex SizePattern();
 
-            internal void AddEntities(List<string> blocks) {
-                foreach(string block in blocks) {
-                    try {
-                        var ent = Entity.FromBlock(block, this);
-                        if(ent != null) Entities.Add(ent);
+            internal void AddGroups(List< List<string> > groups) {
+                foreach( var group in groups) {
+                    var ents = new List<Entity>();
+                    foreach( var block in group ) {
+                        try {
+                            var ent = Entity.FromBlock(block, this);
+                            ents.Add(ent);
+                        }
+                        catch( Exception e ) {
+                            Console.Error.WriteLine($"Error parsing entity: {e.Message}");
+                        }
                     }
-                    catch(Exception e) {
-                        Console.Error.WriteLine($"Error parsing entity: {e.Message}");
-                    }
+                    Groups.Add(ents);
                 }
             }
 
@@ -42,9 +48,10 @@ namespace SharpTech {
             public readonly Dictionary<int, Attribute> Attributes = [];
 
             /// <summary>
-            /// A list of drawing <see cref="Entity">entities</see> in this drawing.
+            /// A list of grouped drawing <see cref="Entity">entities</see> in this drawing.
             /// </summary>
-            public readonly List<Entity> Entities = [];
+            public readonly List< List<Entity> > Groups = [];
+
 
             /// <summary>
             /// Width of the drawing.
@@ -61,10 +68,34 @@ namespace SharpTech {
             /// </summary>
             /// <returns>This drawing represented as an SVG</returns>
             public SVG ToSVG() { 
+
                 SVG svg = new(Width, Height);
-                foreach(var ent in Entities) {
-                    svg.Children.Add(ent);
+
+
+
+                Contour contour = new(
+                    Groups.Where(
+                        group => group.All( 
+                            ent => ent.Color == ENUMS.COLORS.DEFAULT && 
+                            ent.Attribute?.Type != ENUMS.ATTRIBUTE.TEXT_SLAVE // these may look like contour components but they AREN'T!!
+                        )
+                    )
+                    .Select(
+                        group => group.ToStrokes()
+                    )
+                    .Where(
+                        group => group.Any()
+                    )
+                );
+
+                svg.Children.Add(contour);
+
+                foreach( var group in Groups ) {
+                    foreach( var ent in group ) {
+                        svg.Children.Add(ent);
+                    }
                 }
+
                 return svg;
             }
 
@@ -87,13 +118,14 @@ namespace SharpTech {
                 return Drawing.FromCommon(Load(System.Text.Encoding.UTF8.GetString(bytes)));
             }
 
-            internal static Drawing FromCommon(Dictionary<int, List<string>> pre)
+            internal static Drawing FromCommon(Dictionary<int, List< List<string> >> pre)
             {
                 Drawing drawing;
 
+
                 try
                 {
-                    string header = pre.GetOrElse(ENUMS.SECTION.HEADER, "GEO has no header")[0];
+                    string header = pre.GetOrElse(ENUMS.SECTION.HEADER, "GEO has no header")[0][0];
 
                     header.SkipLines(5).TakeLines(1, out string size);
                     var sizeMatch = SizePattern().MatchOrElse(size, "regex");
@@ -108,7 +140,7 @@ namespace SharpTech {
                 }
 
 
-                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.ATT, []))
+                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.ATT, []).SelectMany( x => x ))
                 {
                     try
                     {
@@ -121,7 +153,7 @@ namespace SharpTech {
                     }
                 }
 
-                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.POINTS, []))
+                foreach (string block in pre.GetValueOrDefault(ENUMS.SECTION.POINTS, []).SelectMany( x => x ))
                 {
                     try
                     {
@@ -135,9 +167,9 @@ namespace SharpTech {
                 }
 
 
-                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []));
-                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.ENTITIES, []));
-                drawing.AddEntities(pre.GetValueOrDefault(ENUMS.SECTION.BEND_ENTITIES, []));
+                drawing.AddGroups( pre.GetValueOrDefault(ENUMS.SECTION.TEXT, []) );
+                drawing.AddGroups( pre.GetValueOrDefault(ENUMS.SECTION.BEND_ENTITIES, []) );
+                drawing.AddGroups( pre.GetValueOrDefault(ENUMS.SECTION.ENTITIES, []) );
 
                 return drawing;
             }

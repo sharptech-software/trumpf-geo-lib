@@ -180,7 +180,7 @@ namespace SharpTech {
             /// <summary>
             /// Not applicable to text.
             /// </summary>
-            public override string PathStrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern
+            public override string StrokePattern => throw new NotImplementedException("N/A"); // text doesn't have a stroke pattern
 
             string ISVGElement.ToSVGElement(SVG svg) {
 

@@ -44,6 +44,21 @@ namespace SharpTech {
             return ret;
         }
 
+        public static IEnumerable<GEOLib.IStroke> ToStrokes(this IEnumerable<GEOLib.Entity> source)
+        {
+            List<GEOLib.IStroke> temp = [];
+            foreach (var obj in source)
+            {
+                if (obj is GEOLib.IStroke result) {
+                    temp.Add(result);
+                }
+                else {
+                    return [];
+                }
+            }
+            return temp;
+        }
+
     }
 
 }

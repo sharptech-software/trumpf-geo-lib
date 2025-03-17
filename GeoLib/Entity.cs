@@ -59,11 +59,6 @@ namespace SharpTech {
             }
 
             /// <summary>
-            /// If this is false after an entity instantiates, <see cref="FromBlock(string, Drawing)"/> won't return the entity.
-            /// </summary>
-            protected virtual bool ShouldRender => true;
-
-            /// <summary>
             /// Base entity constructor; least descriptive.<br/>
             /// Probably shouldn't be used directly.
             /// </summary>
@@ -83,11 +78,11 @@ namespace SharpTech {
                 Attribute = GetAttFromData(ref block);
             }
 
-            /// <inheritdoc cref="ISVGPath.PathColor"/>
-            public virtual string  PathColor         => ENUMS.COLORS.Lookup(Color);
+            /// <inheritdoc cref="IStroke.StrokeColor"/>
+            public virtual string  StrokeColor   => ENUMS.COLORS.Lookup(Color);
 
-            /// <inheritdoc cref="ISVGPath.PathStrokePattern"/>
-            public virtual string? PathStrokePattern => ENUMS.STROKES.Lookup(Stroke);
+            /// <inheritdoc cref="IStroke.StrokePattern"/>
+            public virtual string? StrokePattern => ENUMS.STROKES.Lookup(Stroke);
 
             /// <summary>
             /// Creates a drawing entity from a block of entity data.
