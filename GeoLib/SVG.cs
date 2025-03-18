@@ -117,10 +117,13 @@ namespace SharpTech {
 
             /// <summary>
             /// Returns this SVG as a string.
+            /// <paramref name="Responsive"/> If true, the SVG will scale to the width of its container.
             /// </summary>
-            public override string ToString() {
+            public string ToString(bool Responsive) {
+                var size = Responsive ? $@"width=""100%""" : $@"width=""{Width}"" height=""{Height}""";
+
                 StringBuilder svg = new();
-                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100%"" viewBox=""0 0 {Width} {Height}"">");
+                svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" {size} viewBox=""0 0 {Width} {Height}"">");
                 svg.Append("<style> * { vector-effect: non-scaling-stroke; fill-rule: evenodd; } .text { fill: none; stroke-width: 1; } </style>");
                 svg.Append($@"<g transform=""translate(0, {Height})"">");
                 for( int i = 0; i < Children.Count; i++) { // can't use enumeration because we might add more children... stupid C#
@@ -131,6 +134,13 @@ namespace SharpTech {
                 svg.Append("</g>");
                 svg.Append("</svg>");
                 return svg.ToString();
+            }
+
+            /// <summary>
+            /// Returns this SVG as a string.
+            /// </summary>
+            public override string ToString() {
+                return ToString(true);
             }
 
             /// <summary>
