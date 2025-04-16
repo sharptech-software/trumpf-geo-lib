@@ -64,31 +64,63 @@ namespace SharpTech {
             public double Height = height;
 
             /// <summary>
+            /// The hex color to use for entities with the <see cref="ENUMS.COLORS.DEFAULT">default color</see><br/>
+            /// (default: <c>"#000"</c>)<br/>
+            /// <br/>
+            /// <c>null</c> = no predefined stroke color
+            /// </summary>
+            public string? StrokeColor = "#000";
+
+            /// <summary>
+            /// If set, adds a closed path to the SVG for filling it in.<br/>
+            /// (default: <c>"background"</c>)<br/>
+            /// <br/>
+            /// <c>null</c> = don't add the background fill path
+            /// </summary>
+            public string? FillClass = "background";
+
+            /// <summary>
+            /// Hex color to use for the <see cref="FillClass">background fill</see>.<br/>
+            /// (default: <c>"#777"</c>)<br/>
+            /// <br/>
+            /// <c>null</c> = no predefined fill color<br/>
+            /// </summary>
+            public string? FillColor = "#777";
+
+            /// <summary>
+            /// If true (default), the converted SVG will scale to the width of its container.<br/>
+            /// </summary>
+            public bool Responsive = true;
+
+            /// <summary>
             /// Converts the drawing to SVG.
             /// </summary>
             /// <returns>This drawing represented as an SVG</returns>
             public SVG ToSVG() { 
+                SVG svg = new(Width, Height, StrokeColor, Responsive);
 
-                SVG svg = new(Width, Height);
-
-
-
-                Contour contour = new(
-                    Groups.Where(
-                        group => group.All( 
-                            ent => ent.Color == ENUMS.COLORS.DEFAULT && 
-                            ent.Attribute?.Type != ENUMS.ATTRIBUTE.TEXT_SLAVE // these may look like contour components but they AREN'T!!
+                if( FillClass != null ) {
+                    Contour contour = new(
+                        Groups.Where(
+                            group => group.All( 
+                                ent => ent.Color == ENUMS.COLORS.DEFAULT && 
+                                ent.Attribute?.Type != ENUMS.ATTRIBUTE.TEXT_SLAVE // these may look like contour components but they AREN'T!!
+                            )
                         )
-                    )
-                    .Select(
-                        group => group.ToStrokes()
-                    )
-                    .Where(
-                        group => group.Any()
-                    )
-                );
+                        .Select(
+                            group => group.ToStrokes()
+                        )
+                        .Where(
+                            group => group.Any()
+                        ),
+                        FillClass,
+                        FillColor,
+                        StrokeColor
+                    );
 
-                svg.Children.Add(contour);
+
+                    svg.Children.Add(contour);
+                }
 
                 foreach( var group in Groups ) {
                     foreach( var ent in group ) {

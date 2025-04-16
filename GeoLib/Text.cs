@@ -21,7 +21,9 @@ namespace SharpTech {
                     if( parent.AllocateSharedFeature(Glyph.Name) ) { // ensure reference is available
                         parent.Children.Add(Glyph);
                     }
-                    return $@"<use href='#{Glyph.Name}' x='{Position.X}' y='{Position.Y}' stroke='{Color}'/>";
+                    var actualColor = Color ?? parent.DefaultStrokeColor;
+                    var stroke = actualColor == null ? "" : $" stroke='{actualColor}'";
+                    return $@"<use href='#{Glyph.Name}' x='{Position.X}' y='{Position.Y}'{stroke}/>";
                 }
             }
 

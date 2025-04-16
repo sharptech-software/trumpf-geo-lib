@@ -10,7 +10,7 @@ namespace SharpTech {
         /// <summary>
         /// A compound SVG path.
         /// </summary>
-        public class Contour(IEnumerable< IEnumerable<IStroke> > Strokes): ISVGElement {
+        public class Contour(IEnumerable< IEnumerable<IStroke> > Strokes, string Class, string? FillColor, string? StrokeColor ): ISVGElement {
 
             /// <summary>
             /// A set of sets of strokes.
@@ -25,7 +25,7 @@ namespace SharpTech {
                     path.Append( subStrokes.First().StrokeStart + String.Join(' ', subStrokes.Select( sub => sub.StrokeBody )) + "Z" );
                 }
 
-                return CreatePath( path.ToString(), "none", "#777", 0, null );
+                return CreatePath( path.ToString(), Class, FillColor, StrokeColor, 0, null );
             }
         }
 

@@ -54,7 +54,7 @@ namespace SharpTech {
                 /// </summary>
                 /// <param name="color"></param>
                 /// <returns>Hex code</returns>
-                public static string Lookup(int color) {
+                public static string? Lookup(int color) {
                     return color switch {
                         RED     => "#f00",
                         YELLOW  => "#ff0",
@@ -62,7 +62,7 @@ namespace SharpTech {
                         CYAN    => "#0ff",
                         BLUE    => "#00f",
                         MAGENTA => "#f0f",
-                        _       => "#000"
+                        _       => null
                     };
                 }
             }

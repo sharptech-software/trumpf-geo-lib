@@ -9,14 +9,16 @@ using System.Threading.Tasks;
 namespace SharpTech {
     public partial class GEOLib {
 
-        internal static string CreatePath(string Path, string StrokeColor, string FillColor, double StrokeWidth, string? StrokePattern) {
+        internal static string CreatePath(string Path, string? Class, string? FillColor, string? StrokeColor, double StrokeWidth, string? StrokePattern) {
             StringBuilder svg = new();
-                svg.Append($@"<path d=""{Path}"" fill=""{FillColor}"" stroke=""{StrokeColor}"" stroke-width=""{StrokeWidth}"" stroke-linecap=""round""");
-                if (StrokePattern != null)
-                {
-                    svg.Append($@" stroke-dasharray=""{StrokePattern}""");
-                }
-                svg.Append("/>");
+
+            svg.Append($@"<path d=""{Path}"" stroke-width=""{StrokeWidth}"" stroke-linecap=""round""");
+                if( Class != null ) svg.Append($@" class=""{Class}""");
+                if( StrokePattern != null ) svg.Append($@" stroke-dasharray=""{StrokePattern}""");
+                if( StrokeColor != null ) svg.Append($@" stroke=""{StrokeColor}""");
+                if( FillColor != null ) svg.Append($@" fill=""{FillColor}""");
+            svg.Append("/>");
+
             return svg.ToString();
         }
 
@@ -52,7 +54,7 @@ namespace SharpTech {
             /// <summary>
             /// Stroke color, as HTML color string.
             /// </summary>
-            string StrokeColor { get => "black"; }
+            string? StrokeColor { get => null; }
 
             /// <summary>
             /// The stroke-dasharray attribute of the path, or null if nothing special.
@@ -71,7 +73,8 @@ namespace SharpTech {
             {
                 return CreatePath(
                     Path:          StrokeStart + StrokeBody,
-                    StrokeColor:   StrokeColor,
+                    Class:         null,
+                    StrokeColor:   StrokeColor ?? parent.DefaultStrokeColor,
                     FillColor:     "none",
                     StrokeWidth:   StrokeWidth,
                     StrokePattern: StrokePattern
@@ -102,6 +105,12 @@ namespace SharpTech {
             /// </summary>
             public double Height;
 
+            /// <inheritdoc cref="Drawing.Responsive"/>
+            public bool Responsive = true;
+
+            /// <inheritdoc cref="Drawing.StrokeColor"/>
+            public string? DefaultStrokeColor = null;
+
             /// <summary>
             /// The children of this SVG.
             /// </summary>
@@ -110,21 +119,22 @@ namespace SharpTech {
             private int idAcc = 0;
             private HashSet<string> globals = new();
 
-            internal SVG(double width, double height) {
+            internal SVG(double width, double height, string? defaultStrokeColor, bool responsive) {
                 Width = width;
                 Height = height;
+                DefaultStrokeColor = defaultStrokeColor;
+                Responsive = responsive;
             }
 
             /// <summary>
             /// Returns this SVG as a string.
-            /// <paramref name="Responsive"/> If true, the SVG will scale to the width of its container.
             /// </summary>
-            public string ToString(bool Responsive) {
+            public override string ToString() {
                 var size = Responsive ? $@"width=""100%""" : $@"width=""{Width}"" height=""{Height}""";
 
                 StringBuilder svg = new();
                 svg.Append($@"<svg xmlns=""http://www.w3.org/2000/svg"" {size} viewBox=""0 0 {Width} {Height}"">");
-                svg.Append("<style> * { vector-effect: non-scaling-stroke; fill-rule: evenodd; } .text { fill: none; stroke-width: 1; } </style>");
+                svg.Append($"<style> * {{ vector-effect: non-scaling-stroke; fill-rule: evenodd; }} .text {{ fill: none; stroke-width: 1; }} </style>");
                 svg.Append($@"<g transform=""translate(0, {Height})"">");
                 for( int i = 0; i < Children.Count; i++) { // can't use enumeration because we might add more children... stupid C#
                     var child = Children[i];
@@ -136,12 +146,6 @@ namespace SharpTech {
                 return svg.ToString();
             }
 
-            /// <summary>
-            /// Returns this SVG as a string.
-            /// </summary>
-            public override string ToString() {
-                return ToString(true);
-            }
 
             /// <summary>
             /// Allocates a guaranteed unique id within this SVG.

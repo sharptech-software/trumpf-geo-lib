@@ -79,7 +79,7 @@ namespace SharpTech {
             }
 
             /// <inheritdoc cref="IStroke.StrokeColor"/>
-            public virtual string  StrokeColor   => ENUMS.COLORS.Lookup(Color);
+            public virtual string? StrokeColor   => ENUMS.COLORS.Lookup(Color);
 
             /// <inheritdoc cref="IStroke.StrokePattern"/>
             public virtual string? StrokePattern => ENUMS.STROKES.Lookup(Stroke);
