@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Sleuthing\large-arc-test.geo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Sleuthing\BoundingBoxes2.GEO">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

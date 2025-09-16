@@ -1,13 +1,8 @@
 ﻿using SharpTech;
 using System.Diagnostics;
 
-var test = await GEOLib.Drawing.FromFile(@"./Sleuthing/GeoTestsTextBoundingBoxes.GEO");
-
-var test_text = test.Groups.Where( (e => e is GEOLib.Text) )
-                             .Cast<GEOLib.Text>()
-                             .ToList();
-
+var test = await GEOLib.Drawing.FromFile(@"./Sleuthing/large-arc-test.geo");
 
 
 var svg = test.ToSVG();
-File.WriteAllText(Path.GetFullPath("../../../GeoTestsTextBoundingBoxes.svg"), svg.ToString());
+File.WriteAllText(Path.GetFullPath("../../../large-arc-test.svg"), svg.ToString());

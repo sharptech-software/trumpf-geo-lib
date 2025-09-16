@@ -52,6 +52,7 @@ namespace SharpTech {
             public Point Center;
             public Point End;
             public bool  Clockwise;
+            public bool  LargeArc;
 
             public double Radius;
 
@@ -63,6 +64,15 @@ namespace SharpTech {
                 Clockwise = match.Groups[4].Success;
 
                 Radius    = Center.Distance(End);
+                
+                var localStart = Start - Center;
+                var localEnd   = End - Center;
+
+                // Cross product tells us the "natural" direction from start to end
+                var naturalDirection = localStart.X * localEnd.Y - localStart.Y * localEnd.X;
+
+                // If the cross product sign matches our intended direction, it's the short way; otherwise it's a large arc.
+                LargeArc = (naturalDirection < 0) == Clockwise;
             }
 
             // svg interface
