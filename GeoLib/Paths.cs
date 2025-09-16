@@ -77,7 +77,7 @@ namespace SharpTech {
 
             // svg interface
             string IStroke.StrokeStart => $"M {Start.X} {Start.Y}";
-            string IStroke.StrokeBody => $"A {Radius} {Radius} 0 0 {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
+            string IStroke.StrokeBody => $"A {Radius} {Radius} 0 {(LargeArc ? 1 : 0)} {(Clockwise ? 1 : 0)} {End.X} {End.Y}";
 
         }
 
